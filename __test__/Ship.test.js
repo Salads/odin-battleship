@@ -16,3 +16,10 @@ test("ship - hit, sunk", () => {
 		return ship.isSunk();
 	})()).toBe(true);
 });
+
+test("ship - name", () => {
+	expect((() => {
+		let ship = new Ship([0, 0], 1, "Ship");
+		return ship.getName() === "Ship";
+	})()).toBe(true);
+});

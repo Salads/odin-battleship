@@ -3,9 +3,12 @@ class Ship {
 	#size;
 	#numHits = 0;
 
-	constructor(pos, size) {
+	#name;
+
+	constructor(pos, size, name) {
 		this.#pos = pos;
 		this.#size = size;
+		this.#name = name;
 	}
 
 	hit() {
@@ -14,6 +17,10 @@ class Ship {
 
 	isSunk() {
 		return this.#numHits >= this.#size;
+	}
+
+	getName() {
+		return this.#name;
 	}
 }
 
