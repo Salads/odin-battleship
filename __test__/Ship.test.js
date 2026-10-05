@@ -43,3 +43,35 @@ test("ship - range", () => {
 		return shipRange.start === 0 && shipRange.end === 3;
 	})()).toBe(true);
 });
+
+test("ship - range span matches size (left)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.PatrolBoat, 0, 0, Direction.Left);
+		let r = ship.getRange();
+		return r.end - r.start;
+	})()).toBe(ShipType.PatrolBoat.size - 1);
+});
+
+test("ship - range span matches size (up)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.PatrolBoat, 0, 0, Direction.Up);
+		let r = ship.getRange();
+		return r.end - r.start;
+	})()).toBe(ShipType.PatrolBoat.size - 1);
+});
+
+test("ship - range span matches size (right)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.PatrolBoat, 4, 4, Direction.Right);
+		let r = ship.getRange();
+		return r.end - r.start;
+	})()).toBe(ShipType.PatrolBoat.size - 1);
+});
+
+test("ship - range span matches size (down)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.PatrolBoat, 4, 4, Direction.Down);
+		let r = ship.getRange();
+		return r.end - r.start;
+	})()).toBe(ShipType.PatrolBoat.size - 1);
+});

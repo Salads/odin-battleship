@@ -45,17 +45,17 @@ class Ship {
 	}
 
 	#updateRange() {
-		if(this.#faceDirection == Direction.Left) {
+		if(this.#faceDirection === Direction.Left) {
 			this.#range.set(this.#pos.x, this.#pos.x + this.#size - 1);
 		}
 		else if(this.#faceDirection === Direction.Up) {
 			this.#range.set(this.#pos.y, this.#pos.y + this.#size - 1);
 		}
 		else if(this.#faceDirection === Direction.Right) {
-			this.#range.set(this.#pos.x - this.#size - 1, this.#pos.x);
+			this.#range.set(this.#pos.x - this.#size + 1, this.#pos.x);
 		}
 		else if(this.#faceDirection === Direction.Down) {
-			this.#range.set(this.#pos.y - this.#size - 1, this.#pos.y);
+			this.#range.set(this.#pos.y - this.#size + 1, this.#pos.y);
 		}
 	}
 }
