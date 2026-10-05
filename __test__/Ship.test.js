@@ -25,3 +25,11 @@ test("ship - name", () => {
 		return ship.getName() === "Ship";
 	})()).toBe(true);
 });
+
+test("ship - range", () => {
+	expect((() => {
+		let ship = new Ship(0, 0, Direction.Left, 4, "Ship");
+		let shipRange = ship.getRange();
+		return shipRange.start === 0 && shipRange.end === 3;
+	})()).toBe(true);
+});

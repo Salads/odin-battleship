@@ -24,7 +24,7 @@ class Ship {
 	}
 
 	getRange() {
-		return this.#range;
+		return new Range(this.#range.start, this.#range.end);
 	}
 
 	hit() {
