@@ -14,6 +14,11 @@ class Gameboard {
 	#player2ShipsRemaining = 0;
 	#player2MissCount = 0;
 
+	getBoardTile(team, row, col) {
+		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
+		return board[col][row];
+	}
+
 	addShip(team, shipType, posX, posY, faceDirection) {
 		if(!this.#isShipPlacementValid(team, shipType, posX, posY, faceDirection)) {
 			return false;
