@@ -11,17 +11,31 @@ test("gameboard - add one ship", () => {
 	})()).toBe(true);
 });
 
-test("gameboard - add one ship, bounds negative overhang", () => {
+test("gameboard - add one ship, x-bounds underflow", () => {
 	expect((() => {
 		let board = new Gameboard();
 		return board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Right);
 	})()).toBe(false);
 });
 
-test("gameboard - add one ship, bounds positive overhang", () => {
+test("gameboard - add one ship, x-bounds overflow", () => {
 	expect((() => {
 		let board = new Gameboard();
 		return board.addShip(1, ShipType.Destroyer, 9, 9, Direction.Left);
+	})()).toBe(false);
+});
+
+test("gameboard - add one ship, y-bounds underflow", () => {
+	expect((() => {
+		let board = new Gameboard();
+		return board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Down);
+	})()).toBe(false);
+});
+
+test("gameboard - add one ship, y-bounds overflow", () => {
+	expect((() => {
+		let board = new Gameboard();
+		return board.addShip(1, ShipType.Destroyer, 9, 9, Direction.Up);
 	})()).toBe(false);
 });
 
