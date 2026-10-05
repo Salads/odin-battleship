@@ -113,6 +113,23 @@ class Gameboard {
 		tile.hit = true;
 		if(tile.ship) {
 			tile.ship.hit();
+
+			if(tile.ship.isSunk()) {
+				if(toTeam === 1) {
+					this.#player1ShipsRemaining--;
+				}
+				else {
+					this.#player2ShipsRemaining--;
+				}
+			}
+		}
+		else {
+			if(toTeam === 1) {
+				this.#player2MissCount++;
+			}
+			else {
+				this.#player1MissCount++;
+			}
 		}
 	}
 }

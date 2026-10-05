@@ -152,3 +152,63 @@ test("gameboard - hit single ship", () => {
 		return true;
 	})()).toBe(true);
 });
+
+test("gameboard - sink one ship, p1 remaining", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(1, ShipType.PatrolBoat, 0, 0, Direction.Left);
+
+		let beforeP1Ships = board.p1ShipsRemaining;
+		board.receiveAttack(1, 0, 0);
+		board.receiveAttack(1, 1, 0);
+		let afterP1Ships = board.p1ShipsRemaining;
+
+		return beforeP1Ships === 1 && afterP1Ships === 0;
+	})()).toBe(true);
+});
+
+test("gameboard - sink one ship, p2 remaining", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(2, ShipType.PatrolBoat, 0, 0, Direction.Left);
+
+		let beforeP2Ships = board.p2ShipsRemaining;
+		board.receiveAttack(2, 0, 0);
+		board.receiveAttack(2, 1, 0);
+		let afterP2Ships = board.p2ShipsRemaining;
+
+		return beforeP2Ships === 1 && afterP2Ships === 0;
+	})()).toBe(true);
+});
+
+test("gameboard - p1 miss", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(1, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		board.receiveAttack(1, 2, 0);
+		return board.p2MissCount;
+	})()).toBe(1);
+});
+
+test("gameboard - p1 miss", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(2, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		board.receiveAttack(2, 2, 0);
+		return board.p1MissCount;
+	})()).toBe(1);
+});
+
+test("gameboard - fresh p1 miss", () => {
+	expect((() => {
+		let board = new Gameboard();
+		return board.p1MissCount;
+	})()).toBe(0);
+});
+
+test("gameboard - fresh p2 miss", () => {
+	expect((() => {
+		let board = new Gameboard();
+		return board.p2MissCount;
+	})()).toBe(0);
+});
