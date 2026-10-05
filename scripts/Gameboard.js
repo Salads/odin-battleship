@@ -16,7 +16,8 @@ class Gameboard {
 
 	getBoardTile(team, row, col) {
 		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
-		return board[col][row];
+		let tile = board[col][row];
+		return { ship: tile.ship, hit: tile.hit };
 	}
 
 	addShip(team, shipType, posX, posY, faceDirection) {
