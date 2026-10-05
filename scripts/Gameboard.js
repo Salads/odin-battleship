@@ -15,8 +15,7 @@ class Gameboard {
 	#player2MissCount = 0;
 
 	getBoardTile(team, row, col) {
-		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
-		let tile = board[col][row];
+		let tile = this.#getBoardTileRef(team, row, col);
 		return { ship: tile.ship, hit: tile.hit };
 	}
 
@@ -99,8 +98,22 @@ class Gameboard {
 		return this.#player2ShipsRemaining;
 	}
 
-	receiveAttack(attackX, attackY) {
+	#getBoardTileRef(team, row, col) {
+		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
+		return board[col][row];
+	}
 
+	receiveAttack(toTeam, attackX, attackY) {
+		let board = ( toTeam === 1 ? this.#player1Board : this.#player2Board);
+		let tile = board[attackX][attackY];
+		if(tile.hit) {
+			throw new Error("Tile was hit twice!");
+		}
+
+		tile.hit = true;
+		if(tile.ship) {
+			tile.ship.hit();
+		}
 	}
 }
 

@@ -106,3 +106,49 @@ test("gameboard - check board one ship", () => {
 		return true;
 	})()).toBe(true);
 });
+
+test("gameboard - hit single ship", () => {
+	expect((() => {
+		let board = new Gameboard();
+		let addShipResult = board.addShip(1, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		if(!addShipResult) { 
+			console.log("could not add ship");
+			return false; 
+		}
+
+		board.receiveAttack(1, 0, 0);
+		let tile = board.getBoardTile(1, 0, 0);
+		if (tile.ship.isSunk()) {
+			console.log("Ship was sunk after 1 hit");
+			return false;
+		}
+
+		if(!tile.hit) {
+			console.log("Tile was not hit after receiving attack");
+			return false;
+		}
+		
+		for(let i = 0; i < 10; i++) {
+			for(let j = 0; j < 10; j++) {
+				let tile = board.getBoardTile(1, i, j);
+				if(i === 0 && (j === 0 || j === 1)) {
+					if(!tile.ship) {
+						console.log("tile has no ship");
+						return false;
+					}
+
+					if(tile.hit && j === 1) {
+						console.log("Tile hit it wrong spot on ship!");
+						return false;
+					}
+				}
+				else if(tile.ship || tile.hit) { 
+					console.log("ship exists or tile hit in wrong spot");
+					return false; 
+				}
+			}
+		}
+
+		return true;
+	})()).toBe(true);
+});
