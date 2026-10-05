@@ -3,6 +3,14 @@ import { Ship } from "../scripts/Ship.js";
 import { Direction } from "../scripts/Direction.js";
 import { ShipType } from "../scripts/ShipType.js";
 
+test("ship - pos", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.PatrolBoat, 2, 5, Direction.Left);
+		let shipPos = ship.getPos();
+		return shipPos.x === 2 && shipPos.y === 5;
+	})()).toBe(true);
+});
+
 test("ship - hit, no sink", () => {
 	expect((() => {
 		let ship = new Ship(ShipType.PatrolBoat, 0, 0, Direction.Left);
@@ -24,7 +32,7 @@ test("ship - hit, sunk", () => {
 test("ship - name", () => {
 	expect((() => {
 		let ship = new Ship(ShipType.PatrolBoat, 0, 0, Direction.Left);
-		return ship.getName() === ShipType.PatrolBoat.name;
+		return ship.name === ShipType.PatrolBoat.name;
 	})()).toBe(true);
 });
 

@@ -20,7 +20,7 @@ class Ship {
 		this.#updateRange();
 	}
 
-	get pos() {
+	getPos() {
 		return new Pos(this.#pos.x, this.#pos.y);
 	}
 
@@ -36,7 +36,7 @@ class Ship {
 		return this.#numHits >= this.#size;
 	}
 
-	getName() {
+	get name() {
 		return this.#name;
 	}
 
