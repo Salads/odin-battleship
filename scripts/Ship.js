@@ -1,6 +1,7 @@
 import { Direction } from "./Direction.js";
 import { Pos } from "./Pos.js";
 import { Range } from "./Range.js";
+import { ShipType } from "./ShipType.js";
 
 class Ship {
 	#pos;
@@ -11,11 +12,11 @@ class Ship {
 	#numHits = 0;
 	#name;
 
-	constructor(posX, posY, faceDirection, size, name) {
+	constructor(shipType, posX, posY, faceDirection) {
 		this.#pos = new Pos(posX, posY);
 		this.#faceDirection = faceDirection;
-		this.#size = size;
-		this.#name = name;
+		this.#size = shipType.size;
+		this.#name = shipType.name;
 		this.#updateRange();
 	}
 
