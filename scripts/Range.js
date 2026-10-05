@@ -53,6 +53,10 @@ class Range {
 		this.#end = end;
 	}
 
+	isValid(min, max) {
+		return this.start >= min && this.end >= min && this.start <= max && this.end <= max;
+	}
+
 	#assertType(value, varName) {
 		if(!Number.isInteger(value)) {
 			throw new Error(`'${varName}' must be an integer!`);
