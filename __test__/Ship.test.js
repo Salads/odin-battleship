@@ -36,13 +36,40 @@ test("ship - name", () => {
 	})()).toBe(true);
 });
 
-test("ship - range", () => {
+test("ship - range (left)", () => {
 	expect((() => {
 		let ship = new Ship(ShipType.Battleship, 0, 0, Direction.Left);
 		let shipRange = ship.getRange();
 		return shipRange.start === 0 && shipRange.end === 3;
 	})()).toBe(true);
 });
+
+test("ship - range (up)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.Battleship, 0, 0, Direction.Up);
+		let shipRange = ship.getRange();
+		return shipRange.start === 0 && shipRange.end === 3;
+	})()).toBe(true);
+});
+
+
+test("ship - range (right)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.Battleship, 3, 0, Direction.Right);
+		let shipRange = ship.getRange();
+		return shipRange.start === 0 && shipRange.end === 3;
+	})()).toBe(true);
+});
+
+
+test("ship - range (down)", () => {
+	expect((() => {
+		let ship = new Ship(ShipType.Battleship, 0, 3, Direction.Down);
+		let shipRange = ship.getRange();
+		return shipRange.start === 0 && shipRange.end === 3;
+	})()).toBe(true);
+});
+
 
 test("ship - range span matches size (left)", () => {
 	expect((() => {
