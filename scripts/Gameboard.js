@@ -132,6 +132,17 @@ class Gameboard {
 			}
 		}
 	}
+
+	getWinningTeam() {
+		if(!this.p1ShipsRemaining) {
+			return 2;
+		}
+		else if(!this.p2ShipsRemaining) {
+			return 1;
+		}
+		
+		return 0;
+	}
 }
 
 export { Gameboard };

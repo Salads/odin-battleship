@@ -212,3 +212,35 @@ test("gameboard - fresh p2 miss", () => {
 		return board.p2MissCount;
 	})()).toBe(0);
 });
+
+test("gameboard - p1 win", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(2, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		board.addShip(1, ShipType.PatrolBoat, 3, 0, Direction.Left);
+		board.receiveAttack(2, 0, 0);
+		board.receiveAttack(2, 1, 0);
+		return board.getWinningTeam();
+	})()).toBe(1);
+});
+
+test("gameboard - p2 win", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(1, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		board.addShip(2, ShipType.PatrolBoat, 3, 0, Direction.Left);
+		board.receiveAttack(1, 0, 0);
+		board.receiveAttack(1, 1, 0);
+		return board.getWinningTeam();
+	})()).toBe(2);
+});
+
+test("gameboard - no win yet", () => {
+	expect((() => {
+		let board = new Gameboard();
+		board.addShip(1, ShipType.PatrolBoat, 0, 0, Direction.Left);
+		board.addShip(2, ShipType.PatrolBoat, 3, 0, Direction.Left);
+		board.receiveAttack(1, 0, 0);
+		return board.getWinningTeam();
+	})()).toBe(0);
+});
