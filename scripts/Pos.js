@@ -25,8 +25,13 @@ class Pos {
 		this.#y = value;
 	}
 
+	set(x, y) {
+		this.x = x;
+		this.y = y;
+	}
+
 	isValid(min, max) {
-		return x >= min && x <= min && y >= min && y <= max;
+		return this.x >= min && this.x <= max && this.y >= min && this.y <= max;
 	}
 
 	#assertType(value, varName) {

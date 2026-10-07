@@ -28,6 +28,10 @@ class Gameboard {
 		return result;
 	}
 
+	getTileHitForTeam(team, row, col) {
+		return this.getBoardTile(team, row, col).hit;
+	}
+
 	getBoardTile(team, row, col) {
 		let tile = this.#getBoardTileRef(team, row, col);
 		return { ship: tile.ship, hit: tile.hit };

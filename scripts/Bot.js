@@ -8,15 +8,29 @@ const posDeltas = Object.freeze({
 	[Direction.Left] : Object.freeze(new Pos(-1, 0))
 });
 
+const directionArr = Object.values(Direction);
+
+const HuntState = Object.freeze({
+	Explore: "Explore",
+	FirstDirection: "Dir1",
+	SecondDirection: "Dir2"
+});
+
+const HuntResult = Object.freeze({
+	Success: "AttackTaken", 
+	Fallthrough: "NoAttackTaken",
+	Failed: "NoPossibleAction"
+});
+
 export class Bot {
 
 	#gameboard;
 	#team;
 	#enemyTeam;
-	#lastSuccessfulHit = null;
+	#hunt = null;
 
 	constructor(enemyGameboard, botTeam) {
-		this.gameboard = enemyGameboard;
+		this.#gameboard = enemyGameboard;
 		this.#team = botTeam;
 		this.#enemyTeam = (botTeam === 1 ? 2 : 1);
 	}
@@ -40,77 +54,82 @@ export class Bot {
 		}
 	}
 
-	#findNextTile() {
-		if(!this.#lastSuccessfulHit) { return null; }
-		let lastHit = this.#lastSuccessfulHit;
-		let directions = [];
-		for(let dir in Direction) {
-			directions.push(dir);
-		}
+	/*
+		Four phases.
+			1. Find a valid direction to hunt.
+			2. Keep hunting in that direction, as long as tile is un-hit and results in hit.
+			3. Hunt in opposite direction, same as 2.
+			4. Done.
+	*/
+	#huntShip() {
+		if(!this.#hunt) { throw new Error("#huntShip called with no hunt obj"); }
+		let hunt = this.#hunt;
 
-		let curDirection = lastHit.otherDirection ?? lastHit.direction;
-		if(!curDirection) {
-			curDirection = Direction.Up;
-		}
+		if(hunt.state === HuntState.Explore) {
 
-		let done = false;
-		while(!done) {
-			let x = lastHit.currentPos.x;
-			let y = lastHit.currentPos.y;
-			let dp = posDeltas[curDirection];
-			let newTilePos = new Pos(x + dp.x, y + dp.y);
-
-			if(!newTilePos.isValid(0, 9)) {
-				let dx = Math.abs(lastHit.startingPos.x - newTilePos.x);
-				let dy = Math.abs(lastHit.startingPos.y - newTilePos.y);
-				lastHit.failedDirections.add(curDirection);
-
-				// Already checked 1+ tiles, which means we found axis, go opp dir.
-				if(dx > 1 || dy > 1) {
-					lastHit.otherDirection = this.#getOppositeDirection(curDirection);
-					lastHit.currentPos.set(lastHit.startingPos.x, lastHit.startingPos.y);
-				}
-				else { // First tile failed, go next dir.
-					if(lastHit.failedDirections.size >= 4 || lastHit.otherDirection) { 
-						return null; 
+			// Try every direction, until we find a un-hit tile.
+			// If ship exists, set the "axis", if not, try next direction.
+			for(let dirIdx = hunt.dirIdx; dirIdx < directionArr.length; dirIdx++) {
+				let curDirection = directionArr[dirIdx];
+				let dp = posDeltas[curDirection];
+				let p2 = new Pos(hunt.startingPos.x + dp.x, hunt.startingPos.y + dp.y);
+				if(p2.isValid(0, 9) && !this.#gameboard.getTileHitForTeam(this.#enemyTeam, p2.y, p2.x)) {
+					
+					if(this.#gameboard.receiveAttack(this.#enemyTeam, p2.x, p2.y)) {
+						hunt.dirIdx = dirIdx;
+						hunt.currentPos.set(p2.x, p2.y);
+						hunt.otherDirection = this.#getOppositeDirection(curDirection);
+						hunt.state = HuntState.FirstDirection;
+					}
+					else {
+						hunt.dirIdx = dirIdx + 1;
 					}
 
-					let nextIdx = directions.findIndex((elem, idx, arr) => {
-						return idx > 0 && arr[idx - 1] === curDirection;
-					});
-
-					curDirection = directions[nextIdx];
+					return HuntResult.Success;
 				}
 			}
-			else {
-				let tile = this.#gameboard.getBoardTile(this.#enemyTeam, newTilePos.y, newTilePos.x);
-				if(!tile.hit) {
-					lastHit.currentPos = newTilePos;
-					return { x: newTilePos.x, y: newTilePos.y };
+
+			// Could not find valid direction.
+			this.#hunt = null;
+			return HuntResult.Failed;
+		}
+		else {
+			let currentDirection = directionArr[hunt.dirIdx];
+			if(hunt.state === HuntState.SecondDirection) {
+				currentDirection = hunt.otherDirection;
+			}
+
+			let dp = posDeltas[currentDirection];
+			let p2 = new Pos(hunt.currentPos.x + dp.x, hunt.currentPos.y + dp.y);
+			if(p2.isValid(0, 9) && !this.#gameboard.getTileHitForTeam(this.#enemyTeam, p2.y, p2.x)) {
+				
+				if(this.#gameboard.receiveAttack(this.#enemyTeam, p2.x, p2.y)) {
+					hunt.currentPos.set(p2.x, p2.y);
 				}
 				else {
+					hunt.currentPos.set(hunt.startingPos.x, hunt.startingPos.y);
 
-					let dx = Math.abs(lastHit.startingPos.x - newTilePos.x);
-					let dy = Math.abs(lastHit.startingPos.y - newTilePos.y);
-					lastHit.failedDirections.add(curDirection);
-
-					// Already checked 1+ tiles, which means we found axis, go opp dir.
-					if(dx > 1 || dy > 1) {
-						lastHit.otherDirection = this.#getOppositeDirection(curDirection);
-						lastHit.currentPos.set(lastHit.startingPos.x, lastHit.startingPos.y);
+					if(hunt.state === HuntState.FirstDirection) {
+						hunt.state = HuntState.SecondDirection;
 					}
-					else { // First tile failed, go next dir.
-						if(lastHit.failedDirections.size >= 4 || lastHit.otherDirection) { 
-							return null; 
-						}
-
-						let nextIdx = directions.findIndex((elem, idx, arr) => {
-							return idx > 0 && arr[idx - 1] === curDirection;
-						});
-
-						curDirection = directions[nextIdx];
+					else {
+						this.#hunt = null;
 					}
 				}
+
+				return HuntResult.Success;
+			}
+			else {
+				hunt.currentPos.set(hunt.startingPos.x, hunt.startingPos.y);
+				if(hunt.state === HuntState.FirstDirection) {
+					hunt.state = HuntState.SecondDirection;
+					return HuntResult.Fallthrough;
+				}
+				else {
+					this.#hunt = null;
+				}
+
+				return HuntResult.Failed;
 			}
 		}
 	}
@@ -118,35 +137,28 @@ export class Bot {
 	#attackRandomTile() {
 		// Get all tiles and pick one randomly.
 		let targets = this.#gameboard.getTileTargetsForTeam(this.#enemyTeam);
+		if(!targets.length) { return; }
+		
 		let randIdx = Math.floor(Math.random() * targets.length);
 		let target = targets[randIdx];
 		let hit = this.#gameboard.receiveAttack(this.#enemyTeam, target.x, target.y);
 
 		if(hit) {
-			this.#lastSuccessfulHit = { 
+			this.#hunt = { 
 				startingPos: new Pos(target.x, target.y),
 				currentPos: new Pos(target.x, target.y),
-				direction: null,
+				state: HuntState.Explore,
+				dirIdx: 0,
 				otherDirection: null,
-				failedDirections: new Set(),
 			};
 		}
 	}
 
 	doMove() {
-		if(this.#lastSuccessfulHit) {
-			let nextTile = this.#findNextTile();
-			if(nextTile) {
-				this.#gameboard.receiveAttack(this.#enemyTeam, nextTile.x, nextTile.y);
-			}
-			else {
-				this.#lastSuccessfulHit = null;
-				this.#attackRandomTile();
-			}
-		}
-		else {
-			this.#attackRandomTile();
-		}
+		if(!this.#hunt) { this.#attackRandomTile(); return; }
+		let huntResult = this.#huntShip();
+		if(huntResult === HuntResult.Fallthrough) { huntResult = this.#huntShip(); }
+		if(huntResult === HuntResult.Failed)      { this.#attackRandomTile(); }
 	}
 
 };
