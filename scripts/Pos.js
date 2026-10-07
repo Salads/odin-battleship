@@ -25,6 +25,10 @@ class Pos {
 		this.#y = value;
 	}
 
+	isValid(min, max) {
+		return x >= min && x <= min && y >= min && y <= max;
+	}
+
 	#assertType(value, varName) {
 		if(!Number.isInteger(value)) {
 			throw new Error(`Value '${varName}' must be an integer!`);

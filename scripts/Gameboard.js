@@ -14,6 +14,20 @@ class Gameboard {
 	#player2ShipsRemaining = 0;
 	#player2MissCount = 0;
 
+	getTileTargetsForTeam(team) {
+		let result = [];
+		let board = (team === 1 ? this.#player1Board : this.#player2Board);
+		for(let row = 0; row < 10; row++){
+			for(let col = 0; col < 10; col++){
+				if(!board[col][row].hit) {
+					result.push({ x: col, y: row });
+				}
+			}
+		}
+
+		return result;
+	}
+
 	getBoardTile(team, row, col) {
 		let tile = this.#getBoardTileRef(team, row, col);
 		return { ship: tile.ship, hit: tile.hit };
@@ -122,6 +136,7 @@ class Gameboard {
 					this.#player2ShipsRemaining--;
 				}
 			}
+			return true;
 		}
 		else {
 			if(toTeam === 1) {
@@ -130,6 +145,7 @@ class Gameboard {
 			else {
 				this.#player1MissCount++;
 			}
+			return false;
 		}
 	}
 
