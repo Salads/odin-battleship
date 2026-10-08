@@ -2,10 +2,9 @@ import { test, expect } from "@jest/globals";
 import { Pos } from "../scripts/Pos.js";
 
 test("pos - set and get", () => {
-	expect((() => {
-		let p = new Pos(6, 7);
-		return p.x === 6 && p.y === 7;
-	})()).toBe(true);
+	let p = new Pos(6, 7);
+	expect(p.x).toBe(6);
+	expect(p.y).toBe(7);
 });
 
 // #region x types

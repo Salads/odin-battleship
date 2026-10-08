@@ -13,32 +13,27 @@ function hitCoords(board, team) {
 }
 
 test("bot - hunt", () => {
-	expect((() => {
-		jest.spyOn(Math, "random").mockReturnValueOnce(0);
-		let board = new Gameboard();
-		board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Left);
-		const bot = new Bot(board, 2);
-		bot.doMove(); bot.doMove(); bot.doMove(); bot.doMove();
-		return hitCoords(board, 1);
-	})()).toEqual([[0,0],[1,0],[2,0],[3,0]]); 
+	jest.spyOn(Math, "random").mockReturnValueOnce(0);
+	let board = new Gameboard();
+	board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Left);
+	const bot = new Bot(board, 2);
+	bot.doMove(); bot.doMove(); bot.doMove(); bot.doMove();
+	expect(hitCoords(board, 1)).toEqual([[0,0],[1,0],[2,0],[3,0]]); 
 });
 
 test("bot - exactly one attack per doMove across hunt + fallback", () => {
-	expect((() => {
-		jest.spyOn(Math, "random").mockReturnValue(0);
-		let board = new Gameboard();
-		board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Left);
-		let bot = new Bot(board, 2);
+	jest.spyOn(Math, "random").mockReturnValue(0);
+	let board = new Gameboard();
+	board.addShip(1, ShipType.Destroyer, 0, 0, Direction.Left);
+	let bot = new Bot(board, 2);
 
-		jest.spyOn(board, "receiveAttack");
+	jest.spyOn(board, "receiveAttack");
 
-		let prevCount = 0;
-		for(let i = 0; i < 6; i++) {
-			bot.doMove();
-			let count = board.receiveAttack.mock.calls.length;
-			if(count - prevCount !== 1) { return false; }
-			prevCount = count;
-		}
-		return true;
-	})()).toBe(true);
+	let prevCount = 0;
+	for(let i = 0; i < 6; i++) {
+		bot.doMove();
+		let count = board.receiveAttack.mock.calls.length;
+		expect(count - prevCount === 1).toBe(true);
+		prevCount = count;
+	}
 });
