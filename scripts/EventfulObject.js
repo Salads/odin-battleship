@@ -1,7 +1,7 @@
 
 export class EventfulObject {
 
-	#listeners = {};
+	#listeners = [];
 
 	hook(eventName, listener) {
 		if(!this.#listeners[eventName]) { this.#listeners[eventName] = []; }
@@ -10,11 +10,11 @@ export class EventfulObject {
 
 	emit(eventName, eventData) {
 		if(!this.#listeners[eventName]) return;
-		for(let listener of this.#listeners) {
+		for(let listener of this.#listeners[eventName]) {
 			if(typeof listener === "function") {
 				listener(eventData);
 			}
-			else if(listener?.handleEvent) {
+			else if(listener?.handleEvent && typeof listener.handleEvent === "function") {
 				listener.handleEvent(eventData);
 			}
 		}
