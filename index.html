@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Odin: Battleship</title>
+		<link rel="stylesheet" href="styles.css">
+		<script type="module" src="main.js"></script>
+
+		<link rel="preconnect" href="https://fonts.googleapis.com">
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+		<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+	</head>
+	<body>
+		<section id="page-start" class="page">
+			<p class="page-title">BATTLESHIP</p>
+			<div class="flex-row">
+				<button class="play-button" id="button-vs-player">vs Player</button>
+				<button class="play-button" id="button-vs-bot">vs Bot</button>
+			</div>
+		</section>
+		<section id="page-setup" class="page">
+			<p class="page-title">Setup</p>
+			<p class="normal-text"><img id="setup-rotate-icon">: Rotate</p>
+			<div id="page-setup-grid" class="ship-grid"></div>
+			<div id="page-setup-ship-container"></div>
+		</section>
+		<section id="page-play" class="page">
+			<p class="page-title">Player 1's Turn</p>
+			<div id="play-topgrid" class="ship-grid"></div>
+			<div class="flex-row">
+				<p id="miss-count" class="normal-text"></p>
+				<span class="vert-divider"></span>
+				<p id="hit-count" class="normal-text"></p>
+			</div>
+			<div id="play-botgrid" class="ship-grid"></div>
+		</section>
+		<section id="page-finished" class="page">
+			<p class="page-title">Player 2 Wins!</p>
+			<button id="finished-button">Continue</button>
+		</section>
+	</body>
+</html>

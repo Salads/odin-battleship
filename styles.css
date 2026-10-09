@@ -1,0 +1,58 @@
+
+@font-face {
+	font-family: "IronMan";
+	src: url(assets/IronManOfWar001ANcv-6d2Y.ttf);
+}
+
+:root {
+	font-family: "Orbitron";
+
+	--cell-size: 32px;
+}
+
+.page-title {
+	font-size: 3rem;
+}
+
+.normal-text {
+	font-size: 2rem;
+}
+
+.page {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+p {
+	width: fit-content;
+}
+
+.flex-row {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+	gap: 32px;
+}
+
+button {
+	padding: 8px 15px;
+	border: none;
+	border-radius: 2px;
+	min-width: 80px;
+	font-family: "Orbitron";
+	font-size: 1.5rem;
+
+	background: linear-gradient(223deg,rgba(59, 146, 217, 1) 0%, rgba(128, 128, 128, 1) 100%);
+	box-shadow: 2px 2px 5px gray;
+
+	&:hover {
+		background: linear-gradient(223deg,rgb(104, 187, 255) 0%, rgb(146, 157, 167) 100%);
+	}
+
+	&:active {
+		box-shadow: none;
+	}
+}
