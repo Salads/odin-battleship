@@ -45,7 +45,7 @@ button {
 	font-family: "Orbitron";
 	font-size: 1.5rem;
 
-	background: linear-gradient(223deg,rgba(59, 146, 217, 1) 0%, rgba(128, 128, 128, 1) 100%);
+	background: linear-gradient(223deg,rgb(59, 146, 217) 0%, rgb(128, 128, 128) 100%);
 	box-shadow: 2px 2px 5px gray;
 
 	&:hover {
@@ -54,5 +54,41 @@ button {
 
 	&:active {
 		box-shadow: none;
+	}
+}
+
+#setup-ship-container {
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+	margin: 32px;
+}
+
+.ship {
+	width: var(--cell-size);
+	height: calc(var(--cell-size) * var(--size));
+
+	background-color: rgb(89, 116, 116);
+	background-size: 100% 100%;
+	background-blend-mode: multiply;
+
+	&#patrol {
+		background-image: url(assets/patrol-boat-2.png);
+	}
+
+	&#submarine {
+		background-image: url(assets/ship-3.png);
+	}
+
+	&#destroyer {
+		background-image: url(assets/ship-3.png);
+	}
+
+	&#battleship {
+		background-image: url(assets/battleship-4.png);
+	}
+
+	&#carrier {
+		background-image: url(assets/carrier-5.png);
 	}
 }
