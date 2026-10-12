@@ -38,6 +38,8 @@ export class DOMInterface extends EventfulObject {
 		dragImg: document.createElement("img")
 	};
 
+	#nSetupShips = 5;
+
 	constructor() {
 		super();
 		// #region UI References
@@ -79,7 +81,6 @@ export class DOMInterface extends EventfulObject {
 	}
 
 	addShip(shipType, startRow, startCol, faceDir) {
-		console.log("addship");
 		let texture = shipType.texture;
 		let size = shipType.size;
 		if(faceDir === Direction.Up) {
@@ -133,6 +134,15 @@ export class DOMInterface extends EventfulObject {
 				cell.classList.add(tileClassName);
 				cell.classList.add(rotateClassName);
 			}
+		}
+
+		let ship = this.#ui.setup.ships.find((e) => e.dataset.shipType === shipType.refname);
+		if(!ship) { throw new Error("Tried to add already used ship!"); }
+
+		ship.style.display = "none";
+		this.#nSetupShips--;
+		if(!this.#nSetupShips) {
+			this.emit("SetupFinished", { team: this.#curTeam });
 		}
 	}
 
