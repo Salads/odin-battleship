@@ -205,6 +205,7 @@ export class DOMInterface extends EventfulObject {
 		this.#drag.dragImg.style.height = `${32 * this.#drag.shipType.size}px`;
 		this.#drag.dragImg.style.display = "block";
 		this.#drag.dragImg.style.transform = 'rotate(0deg)';
+		this.#drag.ctrlWasDown = false;
 	}
 
 	#handleSetupCellDrop(e) {
