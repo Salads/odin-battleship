@@ -88,8 +88,46 @@ export class DOMInterface extends EventfulObject {
 				let cell = this.#ui.setup.gridCells[row][startCol];
 				cell.style.setProperty('--ship-texture', `url(${texture})`);
 
-				let tileClassNum = (row - startRow) + 1;
-				console.log("tile class#: " + tileClassNum);
+				let tileClassNum = row - startRow + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Right) {
+			let endCol = startCol - (size - 1);
+			for(let col = startCol; col >= endCol; col--){
+				let cell = this.#ui.setup.gridCells[startRow][col];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = startCol - col + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Down) {
+			let endRow = startRow - (size - 1);
+			for(let row = startRow; row >= endRow; row--){
+				let cell = this.#ui.setup.gridCells[row][startCol];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = startRow - row + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Left) {
+			let endCol = startCol + (size - 1);
+			for(let col = startCol; col <= endCol; col++){
+				let cell = this.#ui.setup.gridCells[startRow][col];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = col - startCol + 1;
 				let tileClassName = `tile${tileClassNum}`;
 				let rotateClassName = `tileRotation${faceDir}`;
 				cell.classList.add(tileClassName);

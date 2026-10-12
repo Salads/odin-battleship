@@ -124,7 +124,7 @@ button {
 }
 
 .tileRotationLeft::before {
-	transform: rotate(90deg);
+	transform: rotate(270deg);
 }
 
 .tileRotationDown::before {
@@ -132,7 +132,7 @@ button {
 }
 
 .tileRotationRight::before {
-	transform: rotate(270deg);
+	transform: rotate(90deg);
 }
 
 .rotate-legend {
