@@ -47,12 +47,12 @@ class Gameboard {
 		let range = newShip.getRange();
 		if(newShip.direction === Direction.Left || newShip.direction === Direction.Right) {
 			for(let col = range.start; col <= range.end; col++) {
-				board[col][posY].ship = newShip;
+				board[posY][col].ship = newShip;
 			}
 		}
 		else if(newShip.direction === Direction.Up || newShip.direction === Direction.Down) {
 			for(let row = range.start; row <= range.end; row++) {
-				board[posX][row].ship = newShip;
+				board[row][posX].ship = newShip;
 			}
 		}
 
@@ -75,19 +75,22 @@ class Gameboard {
 		let range = tempShip.getRange();
 
 		if(!range.isValid(0, 9)) {
+			console.log(`range valid failed - [${range.start}, ${range.end}]`);
+			console.log(`\tsize: ${shipType.size}`);
 			return false;
 		}
 
 		if(tempShip.direction === Direction.Left || tempShip.direction === Direction.Right) {
 			for(let col = range.start; col <= range.end; col++) {
-				 if(board[col][posY].ship) {
+				 if(board[posY][col].ship) {
 					return false;
 				 }
 			}
 		}
 		else if(tempShip.direction === Direction.Up || tempShip.direction === Direction.Down) {
 			for(let row = range.start; row <= range.end; row++) {
-				 if(board[posX][row].ship) {
+				 if(board[row][posX].ship) {
+					console.log(`verify vert failed - [${row}, ${posX}]`);
 					return false;
 				 }
 			}
@@ -118,12 +121,12 @@ class Gameboard {
 
 	#getBoardTileRef(team, row, col) {
 		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
-		return board[col][row];
+		return board[row][col];
 	}
 
 	receiveAttack(toTeam, attackX, attackY) {
 		let board = ( toTeam === 1 ? this.#player1Board : this.#player2Board);
-		let tile = board[attackX][attackY];
+		let tile = board[attackY][attackX];
 		if(tile.hit) {
 			throw new Error("Tile was hit twice!");
 		}
