@@ -58,6 +58,14 @@ button {
 	}
 }
 
+.drag-img {
+	position: fixed;
+	left: 0; top: 0;
+	pointer-events: none;   /* critical once it's under the cursor */
+	z-index: 1000;
+	transform-origin: center center;
+}
+
 #setup-ship-container {
 	display: flex;
 	flex-direction: row;

@@ -30,7 +30,13 @@ export class DOMInterface extends EventfulObject {
 
 	#curSection = Section.Start;
 	#curTeam = 1;
-	#curDragData = null;
+	#drag = {
+		active: false,
+		shipType: null,
+		faceDir: Direction.Up,
+		ctrlWasDown: false,
+		dragImg: document.createElement("img")
+	};
 
 	constructor() {
 		super();
@@ -58,11 +64,18 @@ export class DOMInterface extends EventfulObject {
 		this.#ui.finish.continueButton = document.getElementById("finished-button");
 		// #endregion
 
+		let body = document.querySelector("body");
+		body.appendChild(this.#drag.dragImg);
+		this.#drag.dragImg.className = "drag-img";
+
 		this.#fillSetupGrid(this.#ui.setup.grid, (e) => this.#handleSetupCellDrop(e));
 		this.#fillPlayGrid(this.#ui.play.gridTop, (e) => this.#handlePlayCellClick(e));
 		this.#fillPlayGrid(this.#ui.play.gridBot, null);
 		
 		this.#fillSetupContainer();
+
+		document.addEventListener("drag", (e) => this.#handleOnDrag(e));
+		document.addEventListener("dragend", (e) => this.#handleDragEnd(e));
 	}
 
 	addShip(shipType, startRow, startCol, faceDir) {
@@ -101,18 +114,65 @@ export class DOMInterface extends EventfulObject {
 		}
 	}
 
-	#handleShipDragStart(e) {
-		this.#curDragData = {
-			pos: null,
-			shipType: ShipType.getTypeByRefName(e.target.dataset.shipType),
-			faceDir: Direction.Up
+	#handleOnDrag(e) {
+		if(this.#drag.active) {
+
+			if(!this.#drag.ctrlWasDown && e.ctrlKey) {
+				this.#drag.ctrlWasDown = true;
+				console.log("rotate");
+				let curIdx = Direction.AsArray.findIndex((e) => e === this.#drag.faceDir);
+				if(curIdx === -1) {curIdx = 0;}
+
+				curIdx = (curIdx + 1) % Direction.AsArray.length;
+				this.#drag.faceDir = Direction.AsArray[curIdx];
+
+				switch(this.#drag.faceDir) {
+					case Direction.Up:
+						this.#drag.dragImg.style.transform = 'rotate(0deg)';
+						break;
+					case Direction.Left:
+						this.#drag.dragImg.style.transform = 'rotate(90deg)';
+						break;
+					case Direction.Down:
+						this.#drag.dragImg.style.transform = 'rotate(180deg)';
+						break;
+					case Direction.Right:
+						this.#drag.dragImg.style.transform = 'rotate(270deg)';
+						break;
+				}
+			}
+
+			this.#drag.dragImg.style.left = (e.clientX - 16) + "px";
+			this.#drag.dragImg.style.top = (e.clientY - 16) + "px";
 		}
+
+		if(!e.ctrlKey) {
+			this.#drag.ctrlWasDown = false;
+		}
+	}
+
+	#handleShipDragStart(e) {
+		this.#drag.active = true;
+		this.#drag.shipType = ShipType.getTypeByRefName(e.target.dataset.shipType);
+		this.#drag.faceDir = Direction.Up;
+
+		// Override drag image with fake invisible one.
+		// We'll use our own and position it ourselves to support rotation.
+		// (Drag API doesn't support updates past "dragstart" event)
+		e.dataTransfer.setDragImage(document.createElement("img"), 0, 0);
+
+		// Setup our custom drag image
+		this.#drag.dragImg.src = this.#drag.shipType.texture;
+		this.#drag.dragImg.style.width = `32px`;
+		this.#drag.dragImg.style.height = `${32 * this.#drag.shipType.size}px`;
+		this.#drag.dragImg.style.display = "block";
+		this.#drag.dragImg.style.transform = 'rotate(0deg)';
 	}
 
 	#handleSetupCellDrop(e) {
 		e.preventDefault();
-		let shipType = this.#curDragData.shipType;
-		let faceDirection = this.#curDragData.faceDir;
+		let shipType = this.#drag.shipType;
+		let faceDirection = this.#drag.faceDir;
 		let cell = e.target;
 		let posArr = cell.dataset.pos.split(",");
 		this.emit("ShipPlaced", { 
@@ -122,8 +182,11 @@ export class DOMInterface extends EventfulObject {
 			col: Number.parseInt(posArr[1]),
 			team: this.#curTeam
 		});
+	}
 
-		this.#curDragData = null;
+	#handleDragEnd(e) {
+		this.#drag.active = false;
+		this.#drag.dragImg.style.display = "none";
 	}
 
 	setScreenToStart() {
