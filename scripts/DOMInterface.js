@@ -73,7 +73,7 @@ export class DOMInterface extends EventfulObject {
 			let endRow = startRow + (size - 1);
 			for(let row = startRow; row <= endRow; row++){
 				let cell = this.#ui.setup.gridCells[row][startCol];
-				cell.style.setProperty('--texture', `url(${texture})`);
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
 
 				let tileClassNum = (row - startRow) + 1;
 				console.log("tile class#: " + tileClassNum);

@@ -84,7 +84,7 @@ button {
 	&::before {
 		display: block;
 		content: "";
-		background-image: var(--texture);
+		background-image: var(--ship-texture);
 
 		width: var(--cell-size);
 		height: var(--cell-size);
