@@ -131,13 +131,13 @@ export class DOMInterface extends EventfulObject {
 						this.#drag.dragImg.style.transform = 'rotate(0deg)';
 						break;
 					case Direction.Left:
-						this.#drag.dragImg.style.transform = 'rotate(90deg)';
+						this.#drag.dragImg.style.transform = 'rotate(270deg)';
 						break;
 					case Direction.Down:
 						this.#drag.dragImg.style.transform = 'rotate(180deg)';
 						break;
 					case Direction.Right:
-						this.#drag.dragImg.style.transform = 'rotate(270deg)';
+						this.#drag.dragImg.style.transform = 'rotate(90deg)';
 						break;
 				}
 			}

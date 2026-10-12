@@ -7,9 +7,9 @@ const Direction = {
 
 Direction.AsArray = Object.freeze([
 	Direction.Up,
-	Direction.Left,
-	Direction.Down,
 	Direction.Right,
+	Direction.Down,
+	Direction.Left,
 ]);
 
 Object.freeze(Direction);

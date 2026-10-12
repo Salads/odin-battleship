@@ -61,9 +61,9 @@ button {
 .drag-img {
 	position: fixed;
 	left: 0; top: 0;
-	pointer-events: none;   /* critical once it's under the cursor */
+	pointer-events: none;
 	z-index: 1000;
-	transform-origin: center center;
+	transform-origin: 16px 16px;
 }
 
 #setup-ship-container {
