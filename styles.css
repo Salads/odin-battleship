@@ -147,6 +147,16 @@ button {
 	height: var(--cell-size);
 }
 
+.miss::after {
+	position: absolute;
+	display: block;
+	content: "";
+	background-image: url("assets/splash.png");
+
+	width: var(--cell-size);
+	height: var(--cell-size);
+}
+
 .rotate-legend {
 	position: relative;
 	left: 14%;

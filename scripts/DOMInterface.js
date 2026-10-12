@@ -314,9 +314,14 @@ export class DOMInterface extends EventfulObject {
 		}
 	}
 
-	setTileHit(row, col) {
+	setTileHit(row, col, hit) {
 		let cell = this.#ui.play.gridTopCells[row][col];
-		cell.classList.toggle("hit");
+		if(hit) {
+			cell.classList.add("hit");
+		}
+		else {
+			cell.classList.add("miss");
+		}
 	}
 
 	setScreenToStart() {

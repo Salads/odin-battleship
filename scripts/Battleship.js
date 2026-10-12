@@ -48,8 +48,8 @@ export class Battleship {
 
 	#onTileHit(e) {
 		console.log(`tile hit - enemyTeam:${this.getEnemyTeam(e.team)}, row:${e.row}, col:${e.col}`);
-		this.#gameboard.receiveAttack(this.getEnemyTeam(e.team), e.col, e.row);
-		this.#dom.setTileHit(e.row, e.col);
+		let hit = this.#gameboard.receiveAttack(this.getEnemyTeam(e.team), e.col, e.row);
+		this.#dom.setTileHit(e.row, e.col, hit);
 	}
 
 };
