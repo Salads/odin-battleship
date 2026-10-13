@@ -5,14 +5,23 @@ import { Range } from "./Range.js";
 class Gameboard {
 
 	#player1Board = new Array(10).fill().map(() => new Array(10).fill().map(() => { return {ship: null, hit: false}; }));
+	#player1Ships = [];
 	#player1TotalShips = 0;
 	#player1ShipsRemaining = 0;
 	#player1MissCount = 0;
+	#player1HitCount = 0;
 
 	#player2Board = new Array(10).fill().map(() => new Array(10).fill().map(() => { return {ship: null, hit: false}; }));
+	#player2Ships = [];
 	#player2TotalShips = 0;
 	#player2ShipsRemaining = 0;
 	#player2MissCount = 0;
+	#player2HitCount = 0;
+
+	getShipsForTeam(team) {
+		if(team === 1) { return this.#player1Ships; }
+		if(team === 2) { return this.#player2Ships; }
+	}
 
 	getTileTargetsForTeam(team) {
 		let result = [];
@@ -44,6 +53,14 @@ class Gameboard {
 
 		let newShip = new Ship(shipType, posX, posY, faceDirection);
 		let board = (team === 1 ? this.#player1Board : this.#player2Board);
+
+		if(team === 1) {
+			this.#player1Ships.push(newShip);
+		}
+		else if(team === 2) {
+			this.#player2Ships.push(newShip);
+		}
+
 		let range = newShip.getRange();
 		if(newShip.direction === Direction.Left || newShip.direction === Direction.Right) {
 			for(let col = range.start; col <= range.end; col++) {
@@ -119,6 +136,18 @@ class Gameboard {
 		return this.#player2ShipsRemaining;
 	}
 
+	getHitCountForTeam(team) {
+		if(team === 1) { return this.#player1HitCount; }
+		else if(team === 2) { return this.#player2HitCount; }
+		else { throw new Error("getHitCountForTeam invalid team"); }
+	}
+
+	getMissCountForTeam(team) {
+		if(team === 1) { return this.#player1MissCount; }
+		else if(team === 2) { return this.#player2MissCount; }
+		else { throw new Error("getMissCountForTeam invalid team"); }
+	}
+
 	#getBoardTileRef(team, row, col) {
 		let board = ( team === 1 ? this.#player1Board : this.#player2Board);
 		return board[row][col];
@@ -135,14 +164,15 @@ class Gameboard {
 		if(tile.ship) {
 			tile.ship.hit();
 
-			if(tile.ship.isSunk()) {
-				if(toTeam === 1) {
-					this.#player1ShipsRemaining--;
-				}
-				else {
-					this.#player2ShipsRemaining--;
-				}
+			if(toTeam === 1) {
+				this.#player1HitCount++;
+				if(tile.ship.isSunk()) { this.#player1ShipsRemaining--; }
 			}
+			else {
+				this.#player2HitCount++;
+				if(tile.ship.isSunk()) { this.#player2ShipsRemaining--; }
+			}
+
 			return true;
 		}
 		else {

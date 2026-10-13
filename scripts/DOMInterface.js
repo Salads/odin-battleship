@@ -73,35 +73,107 @@ export class DOMInterface extends EventfulObject {
 		body.appendChild(this.#drag.dragImg);
 		this.#drag.dragImg.className = "drag-img";
 
-		this.#fillSetupGrid(this.#ui.setup.grid, (e) => this.#handleSetupCellDrop(e));
-		this.#fillPlayGrid(this.#ui.play.gridTop, (e) => this.#handlePlayCellClick(e));
-		this.#fillPlayGrid(this.#ui.play.gridBot, null);
+		this.#createSetupGrid(this.#ui.setup.grid, (e) => this.#handleSetupCellDrop(e));
+		this.#createPlayScreenGrid(this.#ui.play.gridTop, this.#ui.play.gridTopCells, (e) => this.#handlePlayCellClick(e));
+		this.#createPlayScreenGrid(this.#ui.play.gridBot, this.#ui.play.gridBotCells, null);
 		
-		this.#fillSetupContainer();
+		this.#createSetupShips();
 
 		document.addEventListener("drag", (e) => this.#handleOnDrag(e));
 		document.addEventListener("dragend", (e) => this.#handleDragEnd(e));
+		this.#ui.start.buttonPVP.addEventListener("click", (e) => this.#onPvPButtonClick(e));
+		this.#ui.start.buttonPVE.addEventListener("click", (e) => this.#onPvEButtonClick(e));
+		this.#ui.finish.continueButton.addEventListener("click", (e) => this.#onFinishContinueClick(e));
 	}
 
-	// #region Setup Functions
+	// #region Common Private Functions
 
-	#fillSetupContainer() {
-		let container = this.#ui.setup.shipContainer;
-		for(let shipType of ShipType.AsArray) {
-			let newImg = document.createElement("div");
-			newImg.draggable = true;
-			newImg.style.backgroundImage = `url(${shipType.texture})`;
-			newImg.style.width = `32px`;
-			newImg.style.height = `${32 * shipType.size}px`;
-			newImg.dataset.shipType = shipType.refname;
+	#addShip(gridCells, shipType, startRow, startCol, faceDir) {
+		let texture = shipType.texture;
+		let size = shipType.size;
+		if(faceDir === Direction.Up) {
+			let endRow = startRow + (size - 1);
+			for(let row = startRow; row <= endRow; row++){
+				let cell = gridCells[row][startCol];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
 
-			newImg.addEventListener("dragstart", (e) => this.#handleShipDragStart(e));
-			container.appendChild(newImg);
-			this.#ui.setup.ships.push(newImg);
+				let tileClassNum = row - startRow + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Right) {
+			let endCol = startCol - (size - 1);
+			for(let col = startCol; col >= endCol; col--){
+				let cell = gridCells[startRow][col];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = startCol - col + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Down) {
+			let endRow = startRow - (size - 1);
+			for(let row = startRow; row >= endRow; row--){
+				let cell = gridCells[row][startCol];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = startRow - row + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
+		}
+		else if(faceDir === Direction.Left) {
+			let endCol = startCol + (size - 1);
+			for(let col = startCol; col <= endCol; col++){
+				let cell = gridCells[startRow][col];
+				cell.style.setProperty('--ship-texture', `url(${texture})`);
+
+				let tileClassNum = col - startCol + 1;
+				let tileClassName = `tile${tileClassNum}`;
+				let rotateClassName = `tileRotation${faceDir}`;
+				cell.classList.add(tileClassName);
+				cell.classList.add(rotateClassName);
+			}
 		}
 	}
 
-	#fillSetupGrid(container, dropHandler) {
+	// #endregion
+
+	// #region Start Screen
+
+	#onPvPButtonClick(e) {
+		this.emit("StartPvP");
+	}
+
+	#onPvEButtonClick(e) {
+		this.emit("StartPvE");
+	}
+
+	// #endregion
+
+	// #region Setup Screen
+
+	addSetupShip(shipType, row, col, faceDir) {
+
+		this.#addShip(this.#ui.setup.gridCells, shipType, row, col, faceDir);
+		let setupShip = this.#ui.setup.ships.find((e) => e.dataset.shipType === shipType.refname);
+		setupShip.style.display = "none";
+
+		this.#nSetupShips--;
+		if(!this.#nSetupShips) {
+			this.emit("SetupFinished", { team: this.#curTeam });
+		}
+	}
+
+	#createSetupGrid(container, dropHandler) {
 		let docFrag = document.createDocumentFragment();
 
 		for(let i = 0; i < 10; i++) {
@@ -123,30 +195,39 @@ export class DOMInterface extends EventfulObject {
 		container.appendChild(docFrag);
 	}
 
-	#fillPlayGrid(container, hookClick) {
+	#createSetupShips() {
+		let container = this.#ui.setup.shipContainer;
+		for(let shipType of ShipType.AsArray) {
+			let newImg = document.createElement("div");
+			newImg.draggable = true;
+			newImg.style.backgroundImage = `url(${shipType.texture})`;
+			newImg.style.width = `32px`;
+			newImg.style.height = `${32 * shipType.size}px`;
+			newImg.dataset.shipType = shipType.refname;
 
-		let docFrag = document.createDocumentFragment();
-
-		for(let i = 0; i < 10; i++) {
-			for(let j = 0; j < 10; j++) {
-				let newImg = document.createElement("div");
-				newImg.className = "grid-cell";
-				newImg.dataset.pos = `${i},${j}`;
-				if(hookClick) {
-					newImg.addEventListener("click", (e) => hookClick(e));
-					this.#ui.play.gridTopCells[i][j] = newImg;
-				}
-				else{
-					this.#ui.play.gridBotCells[i][j] = newImg;
-				}
-				docFrag.appendChild(newImg);
-			}
+			newImg.addEventListener("dragstart", (e) => this.#handleShipDragStart(e));
+			container.appendChild(newImg);
+			this.#ui.setup.ships.push(newImg);
 		}
-
-		container.appendChild(docFrag);
 	}
 
-	// #endregion
+	#resetSetupGrid() {
+		for(let row = 0; row < 10; row++) {
+			for(let col = 0; col < 10; col++) {
+				let cell = this.#ui.setup.gridCells[row][col];
+				cell.className = "grid-cell";
+				cell.style.removeProperty("--ship-texture");
+			}
+		}
+	}
+
+	#resetSetupShips() {
+		for(let dragShip of this.#ui.setup.ships) {
+			dragShip.style.display = "block";
+		}
+
+		this.#nSetupShips = 5;
+	}
 
 	// #region Drag Event Handlers
 
@@ -228,94 +309,97 @@ export class DOMInterface extends EventfulObject {
 
 	// #endregion
 
-	// #region Private Helper Functions
-
-	#resetSetupGrid() {
-		for(let row = 0; row < 10; row++) {
-			for(let col = 0; col < 10; col++) {
-				let cell = this.#ui.setup.gridCells[row][col];
-				cell.className = "grid-cell";
-				cell.setProperty("--ship-texture", "");
-			}
-		}
-	}
-
-	#resetSetupShips() {
-		for(let dragShip of this.#ui.setup.ships) {
-			dragShip.style.display = "block";
-		}
-	}
-
 	// #endregion
 
-	addShip(shipType, startRow, startCol, faceDir) {
-		let texture = shipType.texture;
-		let size = shipType.size;
-		if(faceDir === Direction.Up) {
-			let endRow = startRow + (size - 1);
-			for(let row = startRow; row <= endRow; row++){
-				let cell = this.#ui.setup.gridCells[row][startCol];
-				cell.style.setProperty('--ship-texture', `url(${texture})`);
+	// #region Play Screen
 
-				let tileClassNum = row - startRow + 1;
-				let tileClassName = `tile${tileClassNum}`;
-				let rotateClassName = `tileRotation${faceDir}`;
-				cell.classList.add(tileClassName);
-				cell.classList.add(rotateClassName);
-			}
-		}
-		else if(faceDir === Direction.Right) {
-			let endCol = startCol - (size - 1);
-			for(let col = startCol; col >= endCol; col--){
-				let cell = this.#ui.setup.gridCells[startRow][col];
-				cell.style.setProperty('--ship-texture', `url(${texture})`);
+	addStatusShip(shipType, row, col, faceDir) {
+		this.#addShip(this.#ui.play.gridBotCells, shipType, row, col, faceDir);
+	}
 
-				let tileClassNum = startCol - col + 1;
-				let tileClassName = `tile${tileClassNum}`;
-				let rotateClassName = `tileRotation${faceDir}`;
-				cell.classList.add(tileClassName);
-				cell.classList.add(rotateClassName);
-			}
-		}
-		else if(faceDir === Direction.Down) {
-			let endRow = startRow - (size - 1);
-			for(let row = startRow; row >= endRow; row--){
-				let cell = this.#ui.setup.gridCells[row][startCol];
-				cell.style.setProperty('--ship-texture', `url(${texture})`);
+	#createPlayScreenGrid(container, cellsArr, clickHook) {
 
-				let tileClassNum = startRow - row + 1;
-				let tileClassName = `tile${tileClassNum}`;
-				let rotateClassName = `tileRotation${faceDir}`;
-				cell.classList.add(tileClassName);
-				cell.classList.add(rotateClassName);
-			}
-		}
-		else if(faceDir === Direction.Left) {
-			let endCol = startCol + (size - 1);
-			for(let col = startCol; col <= endCol; col++){
-				let cell = this.#ui.setup.gridCells[startRow][col];
-				cell.style.setProperty('--ship-texture', `url(${texture})`);
+		let docFrag = document.createDocumentFragment();
 
-				let tileClassNum = col - startCol + 1;
-				let tileClassName = `tile${tileClassNum}`;
-				let rotateClassName = `tileRotation${faceDir}`;
-				cell.classList.add(tileClassName);
-				cell.classList.add(rotateClassName);
+		for(let i = 0; i < 10; i++) {
+			for(let j = 0; j < 10; j++) {
+				let newImg = document.createElement("div");
+				newImg.className = "grid-cell";
+				newImg.dataset.pos = `${i},${j}`;
+				cellsArr[i][j] = newImg;
+
+				if(clickHook) {
+					newImg.addEventListener("click", (e) => clickHook(e));
+				}
+
+				docFrag.appendChild(newImg);
 			}
 		}
 
-		let ship = this.#ui.setup.ships.find((e) => e.dataset.shipType === shipType.refname);
-		if(!ship) { throw new Error("Tried to add already used ship!"); }
+		container.appendChild(docFrag);
+	}
 
-		ship.style.display = "none";
-		this.#nSetupShips--;
-		if(!this.#nSetupShips) {
-			this.emit("SetupFinished", { team: this.#curTeam });
+	#resetAttackBoard() {
+		for(let i = 0; i < 10; i++){
+			for(let j = 0; j < 10; j++) {
+				let cell = this.#ui.play.gridTopCells[i][j];
+				cell.className = "grid-cell";
+				cell.style.removeProperty("--ship-texture");
+			}
 		}
 	}
 
-	setTileHit(row, col, hit) {
+	#resetStatusBoard() {
+		for(let i = 0; i < 10; i++){
+			for(let j = 0; j < 10; j++) {
+				let cell = this.#ui.play.gridBotCells[i][j];
+				cell.className = "grid-cell";
+				cell.style.removeProperty("--ship-texture");
+			}
+		}
+	}
+
+	#setAttackBoard(gameboard, forTeam) {
+		this.#resetAttackBoard();
+
+		let enemyTeam = 1;
+		if(forTeam === 1) { enemyTeam = 2; }
+
+		for(let i = 0; i < 10; i++) {
+			for(let j = 0; j < 10; j++) {
+				let tile = gameboard.getBoardTile(enemyTeam, i, j);
+				if(tile.hit) {
+					this.setAttackTileHit(i, j, tile.ship);
+				}
+			}
+		}
+	}
+
+	#setStatusBoard(gameboard, forTeam) {
+		this.#resetStatusBoard();
+
+		// Place ships
+		let ships = gameboard.getShipsForTeam(forTeam);
+		for(let ship of ships) {
+			let row = ship.getPos().y;
+			let col = ship.getPos().x;
+			this.addStatusShip(ship.type, row, col, ship.direction);
+		}
+
+		// Update "hit" status of cells.
+		for(let i = 0; i < 10; i++) {
+			for(let j = 0; j < 10; j++) {
+				let tile = gameboard.getBoardTile(forTeam, i, j);
+				if(tile.hit) {
+					this.setAttackTileHit(i, j, tile.ship);
+				}
+			}
+		}
+	}
+
+	setAttackTileHit(row, col, hit) {
 		let cell = this.#ui.play.gridTopCells[row][col];
+		cell.className = "grid-cell";
 		if(hit) {
 			cell.classList.add("hit");
 		}
@@ -324,43 +408,20 @@ export class DOMInterface extends EventfulObject {
 		}
 	}
 
-	setScreenToStart() {
-		this.#curSection = Section.Start;
-		this.#ui.start.style.display = "block";
-		this.#ui.setup.style.display = "none";
-		this.#ui.play.style.display = "none";
-		this.#ui.finish.style.display = "none";
+	setStatusTileHit(row, col, hit) {
+		let cell = this.#ui.play.gridBotCells[row][col];
+		cell.className = "grid-cell";
+		if(hit) {
+			cell.classList.add("hit");
+		}
+		else {
+			cell.classList.add("miss");
+		}
 	}
 
-	setScreenToSetup(forTeam) {
-
-		this.#resetSetupGrid();
-		this.#resetSetupShips();
-
-		this.#ui.setup.title.innerContent = `Player ${forTeam} Setup`;
-		this.#curTeam = forTeam;
-
-		this.#curSection = Section.Setup;
-		this.#ui.start.style.display = "none";
-		this.#ui.setup.style.display = "block";
-		this.#ui.play.style.display = "none";
-		this.#ui.finish.style.display = "none";
-	}
-
-	setScreenToPlay(forTeam) {
-		this.#curSection = Section.Play;
-		this.#ui.start.style.display = "none";
-		this.#ui.setup.style.display = "none";
-		this.#ui.play.style.display = "block";
-		this.#ui.finish.style.display = "none";
-	}
-
-	setScreenToFinish(forTeam) {
-		this.#curSection = Section.Finish;
-		this.#ui.start.style.display = "none";
-		this.#ui.setup.style.display = "none";
-		this.#ui.play.style.display = "none";
-		this.#ui.finish.style.display = "block";
+	setPlayStats(numMisses, numHits) {
+		this.#ui.play.missCount.textContent = `${numMisses} Misses`;
+		this.#ui.play.hitCount.textContent = `${numHits} Hits`;
 	}
 
 	#handlePlayCellClick(e) {
@@ -370,4 +431,67 @@ export class DOMInterface extends EventfulObject {
 		let col = Number.parseInt(coords[1], 10);
 		this.emit("PlayCellClick", { row, col, team: this.#curTeam });
 	}
+	
+	// #endregion
+
+	// #region Finish Screen
+
+	#onFinishContinueClick(e) {
+		this.emit("FinishContinue");
+	}
+
+	// #endregion
+
+	// #region Screen Switchers
+
+	setScreenToStart() {
+		this.#curSection = Section.Start;
+		this.#ui.start.section.style.display = "block";
+		this.#ui.setup.section.style.display = "none";
+		this.#ui.play.section.style.display = "none";
+		this.#ui.finish.section.style.display = "none";
+	}
+
+	setScreenToSetup(forTeam) {
+		this.#resetSetupGrid();
+		this.#resetSetupShips();
+
+		this.#curTeam = forTeam;
+		this.#curSection = Section.Setup;
+		this.#ui.setup.title.innerContent = `Player ${forTeam} Setup`;
+		
+		this.#ui.start.section.style.display = "none";
+		this.#ui.setup.section.style.display = "block";
+		this.#ui.play.section.style.display = "none";
+		this.#ui.finish.section.style.display = "none";
+	}
+
+	setScreenToPlay(forTeam, missCount, hitCount, gameboard) {
+		this.#curTeam = forTeam;
+		this.#curSection = Section.Play;
+		this.#ui.play.title.textContent = `Player ${forTeam}'s Turn!`;
+
+		this.#setAttackBoard(gameboard, forTeam);
+		this.setPlayStats(missCount, hitCount);
+		this.#setStatusBoard(gameboard, forTeam);
+
+		this.#ui.start.section.style.display = "none";
+		this.#ui.setup.section.style.display = "none";
+		this.#ui.play.section.style.display = "block";
+		this.#ui.finish.section.style.display = "none";
+	}
+
+	setScreenToFinish(forTeam) {
+		this.#curTeam = forTeam;
+		this.#curSection = Section.Finish;
+		this.#ui.finish.title.textContent = `Player ${forTeam} Wins!`;
+		
+		this.#ui.start.section.style.display = "none";
+		this.#ui.setup.section.style.display = "none";
+		this.#ui.play.section.style.display = "none";
+		this.#ui.finish.section.style.display = "block";
+	}
+
+	// #endregion
+
 };

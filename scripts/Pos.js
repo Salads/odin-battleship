@@ -16,6 +16,14 @@ class Pos {
 		this.#x = value;
 	}
 
+	get row() {
+		return this.#y;
+	}
+
+	get col() {
+		return this.#x;
+	}
+
 	get y() {
 		return this.#y;
 	}

@@ -4,6 +4,7 @@ import { Range } from "./Range.js";
 import { ShipType } from "./ShipType.js";
 
 class Ship {
+	#type;
 	#pos;
 	#faceDirection;
 	#size;
@@ -13,6 +14,7 @@ class Ship {
 	#name;
 
 	constructor(shipType, posX, posY, faceDirection) {
+		this.#type = shipType;
 		this.#pos = new Pos(posX, posY);
 		this.#faceDirection = faceDirection;
 		this.#size = shipType.size;
@@ -34,6 +36,10 @@ class Ship {
 
 	isSunk() {
 		return this.#numHits >= this.#size;
+	}
+
+	get type() {
+		return this.#type;
 	}
 
 	get name() {
