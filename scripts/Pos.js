@@ -1,45 +1,33 @@
 class Pos {
-	#x = 0;
-	#y = 0;
+	#row = 0;
+	#col = 0;
 	
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
+	constructor(row, col) {
+		this.row = row;
+		this.col = col;
 	}
 
-	get x() {
-		return this.#x;
+	get row() { return this.#row; }
+
+	set row(value) {
+		this.#assertType(value, "row");
+		this.#row = value;
 	}
 
-	set x(value) {
-		this.#assertType(value, "x");
-		this.#x = value;
+	get col() { return this.#col; }
+
+	set col(value) {
+		this.#assertType(value, "col");
+		this.#col = value;
 	}
 
-	get row() {
-		return this.#y;
-	}
-
-	get col() {
-		return this.#x;
-	}
-
-	get y() {
-		return this.#y;
-	}
-
-	set y(value) {
-		this.#assertType(value, "y");
-		this.#y = value;
-	}
-
-	set(x, y) {
-		this.x = x;
-		this.y = y;
+	set(row, col) {
+		this.row = row;
+		this.col = col;
 	}
 
 	isValid(min, max) {
-		return this.x >= min && this.x <= max && this.y >= min && this.y <= max;
+		return this.row >= min && this.row <= max && this.col >= min && this.col <= max;
 	}
 
 	#assertType(value, varName) {

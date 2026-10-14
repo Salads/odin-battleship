@@ -3,8 +3,18 @@ import { Pos } from "../scripts/Pos.js";
 
 test("pos - set and get", () => {
 	let p = new Pos(6, 7);
-	expect(p.x).toBe(6);
-	expect(p.y).toBe(7);
+	expect(p.row).toBe(6);
+	expect(p.col).toBe(7);
+});
+
+test("pos - isValid true", () => {
+	let p = new Pos(0, 9);
+	expect(p.isValid(0, 9)).toBe(true);
+});
+
+test("pos - isValid false", () => {
+	let p = new Pos(10, 9);
+	expect(p.isValid(0, 9)).toBe(false);
 });
 
 // #region x types
