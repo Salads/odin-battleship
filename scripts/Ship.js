@@ -13,17 +13,13 @@ class Ship {
 	#numHits = 0;
 	#name;
 
-	constructor(shipType, posX, posY, faceDirection) {
+	constructor(shipType, row, col, faceDirection) {
 		this.#type = shipType;
-		this.#pos = new Pos(posX, posY);
+		this.#pos = new Pos(row, col);
 		this.#faceDirection = faceDirection;
 		this.#size = shipType.size;
 		this.#name = shipType.name;
 		this.#updateRange();
-	}
-
-	getPos() {
-		return new Pos(this.#pos.x, this.#pos.y);
 	}
 
 	getRange() {
@@ -50,18 +46,26 @@ class Ship {
 		return this.#faceDirection;
 	}
 
+	get row() {
+		return this.#pos.row;
+	}
+
+	get col() {
+		return this.#pos.col;
+	}
+
 	#updateRange() {
 		if(this.#faceDirection === Direction.Left) {
-			this.#range.set(this.#pos.x, this.#pos.x + this.#size - 1);
+			this.#range.set(this.#pos.col, this.#pos.col + this.#size - 1);
 		}
 		else if(this.#faceDirection === Direction.Up) {
-			this.#range.set(this.#pos.y, this.#pos.y + this.#size - 1);
+			this.#range.set(this.#pos.row, this.#pos.row + this.#size - 1);
 		}
 		else if(this.#faceDirection === Direction.Right) {
-			this.#range.set(this.#pos.x - this.#size + 1, this.#pos.x);
+			this.#range.set(this.#pos.col - this.#size + 1, this.#pos.col);
 		}
 		else if(this.#faceDirection === Direction.Down) {
-			this.#range.set(this.#pos.y - this.#size + 1, this.#pos.y);
+			this.#range.set(this.#pos.row - this.#size + 1, this.#pos.row);
 		}
 	}
 }

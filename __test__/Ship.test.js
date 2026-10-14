@@ -5,9 +5,8 @@ import { ShipType } from "../scripts/ShipType.js";
 
 test("ship - pos", () => {
 	let ship = new Ship(ShipType.PatrolBoat, 2, 5, Direction.Left);
-	let shipPos = ship.getPos();
-	expect(shipPos.x).toBe(2);
-	expect(shipPos.y).toBe(5);
+	expect(ship.row).toBe(2);
+	expect(ship.col).toBe(5);
 });
 
 test("ship - hit, no sink", () => {
@@ -46,7 +45,7 @@ test("ship - range (up)", () => {
 
 
 test("ship - range (right)", () => {
-	let ship = new Ship(ShipType.Battleship, 3, 0, Direction.Right);
+	let ship = new Ship(ShipType.Battleship, 0, 3, Direction.Right);
 	let shipRange = ship.getRange();
 	expect(shipRange.start).toBe(0);
 	expect(shipRange.end).toBe(3);
@@ -54,7 +53,7 @@ test("ship - range (right)", () => {
 
 
 test("ship - range (down)", () => {
-	let ship = new Ship(ShipType.Battleship, 0, 3, Direction.Down);
+	let ship = new Ship(ShipType.Battleship, 3, 0, Direction.Down);
 	let shipRange = ship.getRange();
 	expect(shipRange.start).toBe(0);
 	expect(shipRange.end).toBe(3);
