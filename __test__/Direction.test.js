@@ -19,4 +19,6 @@ test("Direction - Value: Left", () => {
 
 test("Direction - isFrozen", () => {
 	expect(Object.isFrozen(Direction)).toBe(true);
+	expect(Object.isFrozen(Direction.AsArray)).toBe(true);
+	expect(Object.isFrozen(Direction.getOppositeDirection)).toBe(true);
 });
