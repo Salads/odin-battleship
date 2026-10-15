@@ -24,13 +24,13 @@ test("DOMPlaySection - show", () => {
 	
 	const friendState = new PlayerState(1);
 	friendState.addShip(ShipType.PatrolBoat, 0, 0, Direction.Left);
-	friendState.receiveAttack(0, 0);
-	friendState.receiveAttack(0, 2);
-
 	const enemyState = new PlayerState(2);
 	enemyState.addShip(ShipType.PatrolBoat, 0, 0, Direction.Left);
-	enemyState.receiveAttack(0, 1);
-	enemyState.receiveAttack(0, 2);
+
+	friendState.attack(enemyState, 0, 1);
+	friendState.attack(enemyState, 0, 2);
+	enemyState.attack(friendState, 0, 0);
+	enemyState.attack(friendState, 0, 2);
 
 	dom.show(friendState, enemyState);
 

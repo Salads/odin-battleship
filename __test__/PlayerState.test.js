@@ -2,6 +2,7 @@ import { test, expect } from "@jest/globals";
 import { PlayerState } from "../scripts/PlayerState.js";
 import { ShipType } from "../scripts/ShipType.js";
 import { Direction } from "../scripts/Direction.js";
+import { Ship } from "../scripts/Ship.js";
 
 test("playerstate - empty board valid", () => {
 	let p = new PlayerState(1);
@@ -115,3 +116,16 @@ test("playerstate - reset", () => {
 	expect(p.team).toBe(1);
 });
 
+test("PlayerState - stats", () => {
+	let p1 = new PlayerState(1);
+	p1.addShip(ShipType.PatrolBoat, 0, 0, Direction.Left);
+
+	let p2 = new PlayerState(2);
+	p2.addShip(ShipType.PatrolBoat, 0, 0, Direction.Left);
+
+	p1.attack(p2, 0, 0);
+	p1.attack(p2, 0, 2);
+
+	expect(p1.missCount).toBe(1);
+	expect(p1.hitCount).toBe(1);
+});

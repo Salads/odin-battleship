@@ -65,6 +65,15 @@ class PlayerState {
 		return Boolean(tile.ship);
 	}
 
+	attack(enemyPlayerState, row, col) {
+		if(enemyPlayerState.receiveAttack(row, col)) {
+			this.#hitCount++;
+		}
+		else {
+			this.#missCount++;
+		}
+	}
+
 	getTile(row, col) {
 		return this.#board[row][col];
 	}
