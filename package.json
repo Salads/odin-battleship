@@ -8,13 +8,15 @@
   },
   "jest": {
     "transform": {},
-    "restoreMocks": true
+    "restoreMocks": true,
+    "testEnvironment": "jsdom"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "jest": "^30.5.2"
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2"
   }
 }
