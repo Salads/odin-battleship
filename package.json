@@ -7,7 +7,8 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "jest": {
-    "transform": {}
+    "transform": {},
+    "restoreMocks": true
   },
   "keywords": [],
   "author": "",

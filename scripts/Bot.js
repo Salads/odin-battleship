@@ -1,14 +1,15 @@
 import { Pos } from "./Pos.js";
 import { Direction } from "./Direction.js";
+import { ShipType } from "./ShipType.js";
+import { Team } from "./Team.js";
+import { validateShipPlacement } from "./ShipValidation.js";
 
 const posDeltas = Object.freeze({
-	[Direction.Up]   : Object.freeze(new Pos(0, -1)),
-	[Direction.Right]: Object.freeze(new Pos(1, 0)),
-	[Direction.Down] : Object.freeze(new Pos(0, 1)),
-	[Direction.Left] : Object.freeze(new Pos(-1, 0))
+	[Direction.Up]   : Object.freeze(new Pos(-1, 0)),
+	[Direction.Right]: Object.freeze(new Pos(0, 1)),
+	[Direction.Down] : Object.freeze(new Pos(1, 0)),
+	[Direction.Left] : Object.freeze(new Pos(0, -1))
 });
-
-const directionArr = Object.values(Direction);
 
 const HuntState = Object.freeze({
 	Explore: "Explore",
@@ -24,33 +25,41 @@ const HuntResult = Object.freeze({
 
 export class Bot {
 
-	#gameboard;
+	#botState;
+	#enemyState;
 	#team;
 	#enemyTeam;
 	#hunt = null;
 
-	constructor(enemyGameboard, botTeam) {
-		this.#gameboard = enemyGameboard;
-		this.#team = botTeam;
-		this.#enemyTeam = (botTeam === 1 ? 2 : 1);
+	constructor(botState, enemyState) {
+		this.#botState = botState;
+		this.#enemyState = enemyState;
+		this.#team = botState.team;
+		this.#enemyTeam = Team.getEnemyTeam(this.#team);
 	}
 
 	get team() {
 		return this.#team;
 	}
 
-	#getOppositeDirection(direction) {
-		if(direction === Direction.Up) { 
-			return Direction.Down; 
-		}
-		else if(direction === Direction.Right) {
-			return Direction.Left;
-		}
-		else if(direction === Direction.Down) {
-			return Direction.Up;
-		}
-		else if(direction === Direction.Left) {
-			return Direction.Right;
+	placeShips() {	
+		for(let shipType of ShipType.AsArray) {
+			let foundPlacement = false;
+			while(!foundPlacement) {
+				let randRow = Math.floor(Math.random() * 10);
+				let randCol = Math.floor(Math.random() * 10);
+				
+				for(let faceDir of Direction.AsArray) {
+					let valid = validateShipPlacement(
+						this.#botState.board, shipType, randRow, randCol, faceDir);
+					
+					if(valid) {
+						this.#botState.addShip(shipType, randRow, randCol, faceDir);
+						foundPlacement = true;
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -69,16 +78,16 @@ export class Bot {
 
 			// Try every direction, until we find a un-hit tile.
 			// If ship exists, set the "axis", if not, try next direction.
-			for(let dirIdx = hunt.dirIdx; dirIdx < directionArr.length; dirIdx++) {
-				let curDirection = directionArr[dirIdx];
+			for(let dirIdx = hunt.dirIdx; dirIdx < Direction.AsArray.length; dirIdx++) {
+				let curDirection = Direction.AsArray[dirIdx];
 				let dp = posDeltas[curDirection];
-				let p2 = new Pos(hunt.startingPos.x + dp.x, hunt.startingPos.y + dp.y);
-				if(p2.isValid(0, 9) && !this.#gameboard.getTileHitForTeam(this.#enemyTeam, p2.y, p2.x)) {
+				let p2 = new Pos(hunt.startingPos.row + dp.row, hunt.startingPos.col + dp.col);
+				if(p2.isValid(0, 9) && !this.#enemyState.board[p2.row][p2.col].hit) {
 					
-					if(this.#gameboard.receiveAttack(this.#enemyTeam, p2.x, p2.y)) {
+					if(this.#enemyState.receiveAttack(p2.row, p2.col)) {
 						hunt.dirIdx = dirIdx;
-						hunt.currentPos.set(p2.x, p2.y);
-						hunt.otherDirection = this.#getOppositeDirection(curDirection);
+						hunt.currentPos.set(p2.row, p2.col);
+						hunt.otherDirection = Direction.getOppositeDirection(curDirection);
 						hunt.state = HuntState.FirstDirection;
 					}
 					else {
@@ -94,20 +103,20 @@ export class Bot {
 			return HuntResult.Failed;
 		}
 		else {
-			let currentDirection = directionArr[hunt.dirIdx];
+			let currentDirection = Direction.AsArray[hunt.dirIdx];
 			if(hunt.state === HuntState.SecondDirection) {
 				currentDirection = hunt.otherDirection;
 			}
 
 			let dp = posDeltas[currentDirection];
-			let p2 = new Pos(hunt.currentPos.x + dp.x, hunt.currentPos.y + dp.y);
-			if(p2.isValid(0, 9) && !this.#gameboard.getTileHitForTeam(this.#enemyTeam, p2.y, p2.x)) {
+			let p2 = new Pos(hunt.currentPos.row + dp.row, hunt.currentPos.col + dp.col);
+			if(p2.isValid(0, 9) && !this.#enemyState.board[p2.row][p2.col].hit) {
 				
-				if(this.#gameboard.receiveAttack(this.#enemyTeam, p2.x, p2.y)) {
-					hunt.currentPos.set(p2.x, p2.y);
+				if(this.#enemyState.receiveAttack(p2.row, p2.col)) {
+					hunt.currentPos.set(p2.row, p2.col);
 				}
 				else {
-					hunt.currentPos.set(hunt.startingPos.x, hunt.startingPos.y);
+					hunt.currentPos.set(hunt.startingPos.row, hunt.startingPos.col);
 
 					if(hunt.state === HuntState.FirstDirection) {
 						hunt.state = HuntState.SecondDirection;
@@ -120,7 +129,7 @@ export class Bot {
 				return HuntResult.Success;
 			}
 			else {
-				hunt.currentPos.set(hunt.startingPos.x, hunt.startingPos.y);
+				hunt.currentPos.set(hunt.startingPos.row, hunt.startingPos.col);
 				if(hunt.state === HuntState.FirstDirection) {
 					hunt.state = HuntState.SecondDirection;
 					return HuntResult.Fallthrough;
@@ -134,19 +143,34 @@ export class Bot {
 		}
 	}
 
+	#getTileTargets() {
+		let result = [];
+
+		for(let row = 0; row < 10; row++){
+			for(let col = 0; col < 10; col++) {
+				let tile = this.#enemyState.board[row][col];
+				if(!tile.hit) {
+					result.push({row, col});
+				}
+			}
+		}
+
+		return result;
+	}
+
 	#attackRandomTile() {
 		// Get all tiles and pick one randomly.
-		let targets = this.#gameboard.getTileTargetsForTeam(this.#enemyTeam);
+		let targets = this.#getTileTargets();
 		if(!targets.length) { return; }
 		
 		let randIdx = Math.floor(Math.random() * targets.length);
 		let target = targets[randIdx];
-		let hit = this.#gameboard.receiveAttack(this.#enemyTeam, target.x, target.y);
+		let hit = this.#enemyState.receiveAttack(target.row, target.col);
 
 		if(hit) {
 			this.#hunt = { 
-				startingPos: new Pos(target.x, target.y),
-				currentPos: new Pos(target.x, target.y),
+				startingPos: new Pos(target.row, target.col),
+				currentPos: new Pos(target.row, target.col),
 				state: HuntState.Explore,
 				dirIdx: 0,
 				otherDirection: null,
