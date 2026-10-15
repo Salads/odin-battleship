@@ -1,8 +1,9 @@
-import { DOMSection } from "./DOMSection.js";
+import { addShip } from "./DOMCommon.js";
+import { EventfulObject } from "./EventfulObject.js";
 import { Direction } from "./Direction.js";
 import { ShipType } from "./ShipType.js";
 
-class DOMSetupSection extends DOMSection {
+class DOMSetupSection extends EventfulObject {
 
 	#ui = {
 		section: document.getElementById("page-setup"),
@@ -56,7 +57,7 @@ class DOMSetupSection extends DOMSection {
 
 	addSetupShip(shipType, row, col, faceDir) {
 	
-		this.addShip(this.#ui.gridCells, shipType, row, col, faceDir);
+		addShip(this.#ui.gridCells, shipType, row, col, faceDir);
 		let setupShip = this.#ui.ships.find((e) => e.dataset.shipType === shipType.refname);
 		setupShip.style.display = "none";
 
