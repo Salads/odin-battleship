@@ -24,6 +24,7 @@ class DOMPlaySection extends EventfulObject {
 	}
 
 	show(playerState, enemyState) {
+		this.#ui.title.textContent = `Player ${playerState.team}'s Turn!`;
 		this.#setAttackBoard(enemyState);
 		this.#setStatusBoard(playerState);
 		this.setPlayStats(playerState.missCount, playerState.hitCount);
