@@ -35,7 +35,7 @@ test("DOMPlaySection - show", () => {
 	dom.show(friendState, enemyState);
 
 	const page = document.getElementById("page-play");
-	expect(page.style.display).toBe("block");
+	expect(page.style.display).toBe("flex");
 
 	// Check Attack Grid
 	let attackGridCells = document.getElementById("play-topgrid").children;

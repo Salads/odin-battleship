@@ -28,7 +28,7 @@ test("DOMStartSection - show/hide", () => {
 	const section = document.getElementById("page-start");
 
 	dom.show();
-	expect(section.style.display).toBe("block");
+	expect(section.style.display).toBe("flex");
 
 	dom.hide();
 	expect(section.style.display).toBe("none");

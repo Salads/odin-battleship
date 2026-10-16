@@ -82,6 +82,9 @@ test("DOMSetupSection - show", () => {
 	const dom = new DOMSetupSection();
 	dom.show(1);
 
+	const page = document.getElementById("page-setup");
+	expect(page.style.display).toBe("flex");
+
 	// Check Setup Grid
 	let grid = document.getElementById("setup-grid");
 	let cells = grid.querySelectorAll(".grid-cell");

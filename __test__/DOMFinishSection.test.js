@@ -13,7 +13,7 @@ test("DOMFinishSection - show", () => {
 	
 	dom.show(1);
 	expect(domTitle.textContent).toBe(`Player ${1} Wins!`);
-	expect(domPage.style.display).toBe("block");
+	expect(domPage.style.display).toBe("flex");
 });
 
 test("DOMFinishSection - hide", () => {
