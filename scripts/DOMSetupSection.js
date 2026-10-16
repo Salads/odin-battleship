@@ -48,7 +48,7 @@ class DOMSetupSection extends EventfulObject {
 		this.#resetSetupGrid();
 		this.#resetSetupShips();
 		this.#ui.title.textContent = `Player ${forTeam} Setup`;
-		this.#ui.section.style.display = "block";
+		this.#ui.section.style.display = "flex";
 	}
 
 	hide() {

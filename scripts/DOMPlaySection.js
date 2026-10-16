@@ -28,7 +28,7 @@ class DOMPlaySection extends EventfulObject {
 		this.#setAttackBoard(enemyState);
 		this.#setStatusBoard(playerState);
 		this.setPlayStats(playerState.missCount, playerState.hitCount);
-		this.#ui.section.style.display = "block";
+		this.#ui.section.style.display = "flex";
 	}
 
 	hide() {

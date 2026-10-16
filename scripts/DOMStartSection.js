@@ -15,7 +15,7 @@ class DOMStartSection extends EventfulObject {
 	}
 
 	show() {
-		this.#ui.section.style.display = "block";
+		this.#ui.section.style.display = "flex";
 	}
 
 	hide() {

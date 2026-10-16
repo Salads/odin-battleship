@@ -14,7 +14,7 @@ class DOMFinishSection extends EventfulObject {
 
 	show(forTeam) {
 		this.#ui.title.textContent = `Player ${forTeam} Wins!`;
-		this.#ui.section.style.display = "block";
+		this.#ui.section.style.display = "flex";
 	}
 
 	hide() {
