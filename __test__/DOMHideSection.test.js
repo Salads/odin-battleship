@@ -14,7 +14,7 @@ test("DOMHideSection - show", () => {
 	const title = section.querySelector(".page-title");
 	expect(title.textContent).toBe("Pass to player 1!");
 
-	helpers.getSectionUniquelyActive(helpers.Section.Hide);
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Hide)).toBe(true);
 });
 
 test("DOMHideSection - hide", () => {

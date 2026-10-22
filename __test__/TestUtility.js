@@ -35,7 +35,12 @@ function getSectionActive(sectionType) {
 export function getSectionUniquelyActive(sectionType) {
 	for(const sectionID of Section.AsArray) {
 		let active = getSectionActive(sectionID);
-		expect(active).toBe(sectionID === sectionType);
+		if(sectionID !== sectionType && active) {
+			return false;
+		}
+		else if(sectionID === sectionType && !active) {
+			return false;
+		}
 	}
 }
 // #endregion
