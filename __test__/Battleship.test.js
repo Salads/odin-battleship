@@ -69,11 +69,62 @@ test("Battleship - Full Run PVP", () => {
 		}
 	}
 
+	// #endregion
+
 	expect(helpers.getSectionUniquelyActive(helpers.Section.Finish)).toBe(true);
 	expect(helpers.finishSection_getTitleText()).toBe("Player 1 Wins!");
 
 	helpers.finishSection_clickContinue();
 	expect(helpers.getSectionUniquelyActive(helpers.Section.Start)).toBe(true);
 
+});
+
+test("Battleship - Full Run PVE", () => {
+	const b = new Battleship();
+	let shipPositions = [];
+
+	// #region Start PVP Game
+
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Start)).toBe(true);
+	helpers.startSection_clickPVEButton();
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Setup)).toBe(true);
+	
 	// #endregion
+
+	// #region Setup Phase
+
+	// P1 Setup
+	expect(helpers.setupSection_getTitleText()).toBe("Player 1 Setup");
+	for(let col = 0; col < ShipType.AsArray.length; col++) {
+		let shipType = ShipType.AsArray[col];
+		helpers.setupSection_dropShip(shipType, 0, col);
+		shipPositions.push(... helpers.getShipPositions(shipType, 0, col));
+	}
+
+	// #endregion
+
+	// Transition Setup(1) => Play(1)
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Play)).toBe(true);
+
+	// #region Play Phase 
+
+	expect(shipPositions.length).toBe(17);
+
+	// Hit every ship-filled tile
+	for(let shipPosIdx = 0; shipPosIdx < shipPositions.length; shipPosIdx++){
+		expect(helpers.getSectionUniquelyActive(helpers.Section.Play)).toBe(true);
+		expect(helpers.playSection_getTitleText()).toBe("Player 1's Turn!");
+
+		let nextHitPos = shipPositions[shipPosIdx];
+		helpers.playSection_clickPlayCell(nextHitPos[0], nextHitPos[1]);
+	}
+
+	// #endregion
+
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Finish)).toBe(true);
+	expect(helpers.finishSection_getTitleText()).toBe("Player 1 Wins!");
+
+	helpers.finishSection_clickContinue();
+	expect(helpers.getSectionUniquelyActive(helpers.Section.Start)).toBe(true);
+
 });
