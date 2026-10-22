@@ -1,11 +1,15 @@
 import * as helpers from "./TestUtility.js";
 import { readFileSync } from "node:fs";
-import { test, expect, jest, beforeEach } from "@jest/globals";
+import { test, expect, jest, beforeEach, afterEach } from "@jest/globals";
 import { ShipType } from "../scripts/ShipType.js";
 import { Battleship } from "../scripts/Battleship.js";
+import { Bot } from "../scripts/Bot.js";
 
 const html = readFileSync(new URL("../index.html", import.meta.url), "utf-8");
 beforeEach(() => { document.documentElement.innerHTML = html; });
+
+const botMoveFunc = Bot.prototype.doMove;
+afterEach(() => {Bot.prototype.doMove = botMoveFunc;});
 
 test("Battleship - Full Run PVP", () => {
 	const b = new Battleship();
@@ -81,7 +85,9 @@ test("Battleship - Full Run PVP", () => {
 
 test("Battleship - Full Run PVE", () => {
 	const b = new Battleship();
-	let shipPositions = [];
+
+	// NOTE(Salads): Mock bot doMove because it places ships randomly.
+	Bot.prototype.doMove = () => {};
 
 	// #region Start PVP Game
 
@@ -98,7 +104,6 @@ test("Battleship - Full Run PVE", () => {
 	for(let col = 0; col < ShipType.AsArray.length; col++) {
 		let shipType = ShipType.AsArray[col];
 		helpers.setupSection_dropShip(shipType, 0, col);
-		shipPositions.push(... helpers.getShipPositions(shipType, 0, col));
 	}
 
 	// #endregion
@@ -108,15 +113,18 @@ test("Battleship - Full Run PVE", () => {
 
 	// #region Play Phase 
 
-	expect(shipPositions.length).toBe(17);
+	// Hit every tile until we get all of them.
+	for(let row = 0; row < 10; row++) {
+		for(let col = 0; col < 10; col++) {
+			if(helpers.getSectionUniquelyActive(helpers.Section.Finish)) break;
 
-	// Hit every ship-filled tile
-	for(let shipPosIdx = 0; shipPosIdx < shipPositions.length; shipPosIdx++){
-		expect(helpers.getSectionUniquelyActive(helpers.Section.Play)).toBe(true);
-		expect(helpers.playSection_getTitleText()).toBe("Player 1's Turn!");
+			expect(helpers.getSectionUniquelyActive(helpers.Section.Play)).toBe(true);
+			expect(helpers.playSection_getTitleText()).toBe("Player 1's Turn!");
 
-		let nextHitPos = shipPositions[shipPosIdx];
-		helpers.playSection_clickPlayCell(nextHitPos[0], nextHitPos[1]);
+			helpers.playSection_clickPlayCell(row, col);
+		}
+
+		if(helpers.getSectionUniquelyActive(helpers.Section.Finish)) break;
 	}
 
 	// #endregion

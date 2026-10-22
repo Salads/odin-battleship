@@ -124,6 +124,11 @@ export function playSection_getPlayCell(row, col) {
 	return playCells[idx];
 }
 
+export function playSection_getPlayCellHit(row, col) {
+	let domCell = playSection_getPlayCell(row, col);
+	return domCell.classList.contains("hit");
+}
+
 export function playSection_getStatusCell(row, col) {
 	const statusGrid = document.getElementById("play-botgrid");
 	const setupCells = statusGrid.querySelectorAll(".grid-cell");
