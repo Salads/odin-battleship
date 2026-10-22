@@ -42,6 +42,8 @@ export function getSectionUniquelyActive(sectionType) {
 			return false;
 		}
 	}
+
+	return true;
 }
 // #endregion
 
@@ -83,12 +85,17 @@ export function setupSection_getDraggableShip(shipType) {
 
 export function setupSection_dropShip(shipType, row, col) {
 	const ship = setupSection_getDraggableShip(shipType);
-	ship.dispatchEvent(new DragEvent("dragstart", {
-		dataTransfer: new DataTransfer()
+	ship.dispatchEvent(new Event("dragstart", {
+		dataTransfer: {
+			setDragImage: () => {},
+			getData: () => "",
+			setData: () => {},
+			clearData: () => {},
+		}
 	}));
 
 	const cell = setupSection_getGridElement(row, col);
-	cell.dispatchEvent(new DragEvent("drop", {
+	cell.dispatchEvent(new Event("drop", {
 		bubbles: true, cancelable: true,
 		target: cell
 	}));
@@ -151,3 +158,22 @@ export function finishSection_getTitleText() {
 
 // #endregion
 
+// #region HideSection Helpers 
+
+export function hideSection_clickContinue() {
+	const button = document.getElementById("hide-continue");
+	button.click();
+}
+
+// #endregion
+
+// NOTE(Salads): Only Up direction, for now?
+export function getShipPositions(shipType, row, col) {
+	let result = [];
+	let endRow = row + shipType.size;
+	for(let i = row; i < endRow; i++) {
+		result.push([i, col]);
+	}
+
+	return result;
+}
