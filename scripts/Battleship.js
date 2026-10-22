@@ -5,10 +5,18 @@ import { DOMFinishSection } from "./DOMFinishSection.js";
 import { Bot } from "./Bot.js";
 import { Team } from "./Team.js";
 import { PlayerState } from "./PlayerState.js";
+import { DOMHideSection } from "./DOMHideSection.js";
 
 const GameType = Object.freeze({
 	PvP: 1,
 	PvE: 2
+});
+
+const GameState = Object.freeze({
+	Start : 1,
+	Setup : 2,
+	Play  : 3,
+	Finish: 4
 });
 
 export class Battleship {
@@ -16,6 +24,7 @@ export class Battleship {
 	#domSetup = new DOMSetupSection();
 	#domPlay = new DOMPlaySection();
 	#domFinish = new DOMFinishSection();
+	#domHide = new DOMHideSection();
 
 	#p1State = new PlayerState(1);
 	#p2State = new PlayerState(2);
@@ -23,10 +32,11 @@ export class Battleship {
 	#bot = null;
 
 	#curTeam = 1;
+	#gameState = GameState.Start;
 
 	constructor() {
-		this.#domStart.hook("StartPvP", (e) => this.#onStartPvP(e));
-		this.#domStart.hook("StartPvE", (e) => this.#onStartPvE(e));
+		this.#domStart.hook("StartPvP", (e) => this.#onPVPClick(e));
+		this.#domStart.hook("StartPvE", (e) => this.#onPVEClick(e));
 
 		this.#domSetup.hook("SetupShipPlaced", (e) => this.#onShipPlaced(e));
 		this.#domSetup.hook("SetupFinished", (e) => this.#onSetupFinished(e));
@@ -34,6 +44,7 @@ export class Battleship {
 		this.#domPlay.hook("PlayCellClick", (e) => this.#onPlayCellClick(e));
 
 		this.#domFinish.hook("FinishContinue", (e) => this.#onFinishContinue(e));
+		this.#domHide.hook("HideContinue", (e) => this.#onPVPHideContinue(e));
 
 		this.showStartSection();
 	}
@@ -50,100 +61,6 @@ export class Battleship {
 		}
 	}
 
-	// #region Section Changers
-	showStartSection() {
-		this.#domStart.show();
-		this.#domSetup.hide();
-		this.#domPlay.hide();
-		this.#domFinish.hide();
-	}
-
-	showSetupSection(forTeam) {
-		this.#curTeam = forTeam;
-		this.#domStart.hide();
-		this.#domSetup.show(forTeam);
-		this.#domPlay.hide();
-		this.#domFinish.hide();
-	}
-
-	showPlaySection(playerState, enemyState) {
-		this.#curTeam = playerState.team;
-		this.#domStart.hide();
-		this.#domSetup.hide();
-		this.#domPlay.show(playerState, enemyState);
-		this.#domFinish.hide();
-	}
-
-	showFinishSection(forTeam) {
-		this.#curTeam = forTeam;
-		this.#domStart.hide();
-		this.#domSetup.hide();
-		this.#domPlay.hide();
-		this.#domFinish.show(forTeam);
-	}
-	// #endregion
-
-	// #region Start Screen Events
-
-	#onStartPvP() {
-		this.#curTeam = 1;
-		this.#gameType = GameType.PvP;
-		this.showSetupSection(this.#curTeam);
-	}
-
-	#onStartPvE() {
-		this.#bot = new Bot(this.#p2State, this.#p1State);
-		this.#curTeam = 1;
-		this.#gameType = GameType.PvE;
-		this.showSetupSection(this.#curTeam);
-	}
-
-	// #endregion
-
-	// #region Setup Screen Events
-
-	#onShipPlaced(e) {
-
-		const playerState = this.getTeamState(this.#curTeam);
-		let success = playerState.addShip(
-			e.shipType,
-			e.row, e.col,
-			e.faceDirection
-		);
-
-		if(!success) { throw new Error("Invalid Ship Placement"); }
-		this.#domSetup.addSetupShip(e.shipType, e.row, e.col, e.faceDirection);
-	}
-
-	#onSetupFinished(e) {
-
-		let goNextScreen = false;
-		if(e.team === 1) {
-			if(this.#gameType === GameType.PvE) {
-				const playerState = this.getTeamState(this.#curTeam);
-				this.#bot.placeShips(playerState);
-				goNextScreen = true;
-			}
-			else {
-				this.showSetupSection(2);
-			}
-		}
-		else {
-			goNextScreen = true;
-		}
-
-		if(goNextScreen) {
-			this.#curTeam = 1;
-			const playerState = this.getTeamState(this.#curTeam);
-			const enemyState = this.getTeamState(Team.getEnemyTeam(this.#curTeam));
-			this.showPlaySection(playerState, enemyState);
-		}
-	}
-
-	// #endregion
-
-	// #region Play Screen Events
-
 	getWinningTeam() {
 		if(!this.#p1State.shipsRemaining) {
 			return 2;
@@ -155,6 +72,45 @@ export class Battleship {
 			return 0;
 		}
 	}
+
+	// #region GameState Mutating Events
+
+	// #region Start Screen Events
+
+	#onPVPClick() {
+		this.#curTeam = 1;
+		this.#gameType = GameType.PvP;
+		this.#gameState = GameState.Setup;
+		this.showSetupSection(this.#curTeam);
+	}
+
+	#onPVEClick() {
+		this.#curTeam = 1;
+		this.#gameType = GameType.PvE;
+		this.#gameState = GameState.Setup;
+		this.showSetupSection(this.#curTeam);
+		this.#bot = new Bot(this.#p2State, this.#p1State);
+	}
+
+	// #endregion
+
+	// #region Setup Screen Events
+
+	#onSetupFinished(e) {
+		if(this.#gameType === GameType.PvP) {
+			if(this.#curTeam === 2) {
+				this.#gameState = GameState.Play;
+			}
+
+			this.showHideSection(this.#curTeam);
+		}
+		else if(this.#gameType === GameType.PvE) {
+			this.#bot.placeShips();
+			this.showPlaySection(this.#p1State, this.#p2State);
+		}
+	}
+
+	// #endregion
 
 	#onPlayCellClick(e) {
 		let playerState = this.getTeamState(this.#curTeam);
@@ -175,20 +131,90 @@ export class Battleship {
 			this.showPlaySection(playerState, enemyState);
 		}
 		else {
-			this.#curTeam = Team.getEnemyTeam(this.#curTeam);
-			this.showPlaySection(enemyState, playerState);
+			this.showHideSection(this.#curTeam);
 		}
 	}
 
-	// #endregion
-
-	// #region Finish Screen Events
+	#onPVPHideContinue() {
+		this.#curTeam = Team.getEnemyTeam(this.#curTeam);
+		if(this.#gameState === GameState.Setup) {
+			this.showSetupSection(this.#curTeam);
+		}
+		else if(this.#gameState === GameState.Play) {
+			const playerState = this.getTeamState(this.#curTeam);
+			const enemyState = this.getTeamState(Team.getEnemyTeam(this.#curTeam));
+			this.showPlaySection(playerState, enemyState);
+		}
+	}
 
 	#onFinishContinue(e) {
 		this.#p1State.reset();
 		this.#p2State.reset();
 		this.#curTeam = 1;
 		this.showStartSection();
+	}
+
+	// #endregion
+
+	// #region Section Changers
+	showStartSection() {
+		this.#domStart.show();
+		this.#domSetup.hide();
+		this.#domPlay.hide();
+		this.#domFinish.hide();
+		this.#domHide.hide();
+	}
+
+	showSetupSection(forTeam) {
+		this.#curTeam = forTeam;
+		this.#domStart.hide();
+		this.#domSetup.show(forTeam);
+		this.#domPlay.hide();
+		this.#domFinish.hide();
+		this.#domHide.hide();
+	}
+
+	showPlaySection(playerState, enemyState) {
+		this.#curTeam = playerState.team;
+		this.#domStart.hide();
+		this.#domSetup.hide();
+		this.#domPlay.show(playerState, enemyState);
+		this.#domFinish.hide();
+		this.#domHide.hide();
+	}
+
+	showFinishSection(forTeam) {
+		this.#curTeam = forTeam;
+		this.#domStart.hide();
+		this.#domSetup.hide();
+		this.#domPlay.hide();
+		this.#domFinish.show(forTeam);
+		this.#domHide.hide();
+	}
+
+	showHideSection(forTeam) {
+		this.#curTeam = forTeam;
+		this.#domStart.hide();
+		this.#domSetup.hide();
+		this.#domPlay.hide();
+		this.#domFinish.hide();
+		this.#domHide.show(forTeam);
+	}
+	// #endregion
+
+	// #region Setup Screen Events
+
+	#onShipPlaced(e) {
+
+		const playerState = this.getTeamState(this.#curTeam);
+		let success = playerState.addShip(
+			e.shipType,
+			e.row, e.col,
+			e.faceDirection
+		);
+
+		if(!success) { throw new Error("Invalid Ship Placement"); }
+		this.#domSetup.addSetupShip(e.shipType, e.row, e.col, e.faceDirection);
 	}
 
 	// #endregion
