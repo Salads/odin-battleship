@@ -2,7 +2,7 @@ import { test, expect, jest, beforeEach } from "@jest/globals";
 import { readFileSync } from "node:fs";
 import { DOMStartSection } from "../scripts/DOMStartSection.js";
 
-const html = readFileSync(new URL("../index.html", import.meta.url), "utf8");
+const html = readFileSync(new URL("../index.html", import.meta.url), "utf-8");
 beforeEach(() => { document.documentElement.innerHTML = html; });
 
 test("DOMStartSection - PVP Event", () => {
