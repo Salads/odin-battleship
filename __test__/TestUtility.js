@@ -85,20 +85,27 @@ export function setupSection_getDraggableShip(shipType) {
 
 export function setupSection_dropShip(shipType, row, col) {
 	const ship = setupSection_getDraggableShip(shipType);
-	ship.dispatchEvent(new Event("dragstart", {
-		dataTransfer: {
-			setDragImage: () => {},
-			getData: () => "",
-			setData: () => {},
-			clearData: () => {},
-		}
-	}));
+
+	const dataTransferMock = {
+		setDragImage: () => {},
+		getData: () => "",
+		setData: () => {},
+		clearData: () => {},
+		dropEffect: "move",
+		effectAllowed: "all",
+		files: [],
+		items: [],
+		types: [],
+	};
+
+	const dragStartEventMock = new Event("dragstart", {bubbles: true, cancelable: true});
+	dragStartEventMock.dataTransfer = dataTransferMock;
+	ship.dispatchEvent(dragStartEventMock);
 
 	const cell = setupSection_getGridElement(row, col);
-	cell.dispatchEvent(new Event("drop", {
-		bubbles: true, cancelable: true,
-		target: cell
-	}));
+	const dropEventMock = new Event("drop", {bubbles: true, cancelable: true});
+	dropEventMock.dataTransfer = dataTransferMock;
+	cell.dispatchEvent(dropEventMock);
 }
 
 export function setupSection_getTitleText() {

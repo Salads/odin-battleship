@@ -26,7 +26,7 @@ test("Battleship - Full Run PVP", () => {
 	for(let col = 0; col < ShipType.AsArray.length; col++) {
 		let shipType = ShipType.AsArray[col];
 		helpers.setupSection_dropShip(shipType, 0, col);
-		shipPositions.concat(helpers.getShipPositions(shipType, 0, col));
+		shipPositions.push(... helpers.getShipPositions(shipType, 0, col));
 	}
 
 	// Transition Setup(1) => Setup(2)
