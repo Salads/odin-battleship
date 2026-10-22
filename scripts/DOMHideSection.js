@@ -1,4 +1,5 @@
 import { EventfulObject } from "./EventfulObject.js";
+import { Team } from "./Team.js";
 
 class DOMHideSection extends EventfulObject {
 
@@ -14,7 +15,8 @@ class DOMHideSection extends EventfulObject {
 	}
 
 	show(forTeam) {
-		this.#ui.title.textContent = `Pass to player ${forTeam}!`;
+		let enemyTeam = Team.getEnemyTeam(forTeam);
+		this.#ui.title.textContent = `Pass to player ${enemyTeam}!`;
 		this.#ui.section.style.display = "flex";
 	}
 
